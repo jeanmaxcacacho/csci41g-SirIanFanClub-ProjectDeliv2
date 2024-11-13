@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from flask_session import Session
+
 from database.db import get_db_connection
 
 app = Flask(__name__)
@@ -17,7 +18,28 @@ def index():
 # if login info matches to an account in the db, user logs in
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    pass
+    if request.method == 'POST':
+        email = request.form.get('email')
+        passkey = request.form.get('passkey')
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        match_query = """
+        select p.passenger_id p_id
+        from passenger p
+        where email = %s and passkey = %s
+        """
+        cursor.execute(match_query, (email, passkey))
+        match_result = cursor.fetchone()
+
+        # successful login
+        if match_result:
+            session['user_id'] = match_result[0]
+            return redirect('/')
+        # failed login
+        else:
+            return render_template("errorpages/login_failed.html")
+    return render_template("sessionmgt/login.html")
 
 # clear session cookie
 @app.route('/logout')
