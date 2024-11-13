@@ -20,7 +20,6 @@ flask_session/
 
 # MariaDB / MySQL specific
 *.db
-*.sql
 *.sql.gz
 
 # PyCharm / VS Code / IDE-specific
