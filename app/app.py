@@ -27,7 +27,7 @@ def login():
         match_query = """
         select p.passenger_id p_id
         from passenger p
-        where email = %s and passkey = %s
+        where p.email = %s and p.passkey = %s
         """
         cursor.execute(match_query, (email, passkey))
         match_result = cursor.fetchone()
