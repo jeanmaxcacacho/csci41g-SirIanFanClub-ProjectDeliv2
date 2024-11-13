@@ -44,7 +44,8 @@ def login():
 # clear session cookie
 @app.route('/logout')
 def logout():
-    pass
+    session.clear()
+    return redirect('/login')
 
 # create a user object and redirect to login
 @app.route('/register', methods=['GET', 'POST'])
