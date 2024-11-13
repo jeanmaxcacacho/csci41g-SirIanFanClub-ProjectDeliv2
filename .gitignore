@@ -1,0 +1,32 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment
+venv/
+env/
+.venv/
+.virtualenv/
+
+# Flask instance and session folder
+instance/
+flask_session/
+
+# Flask configuration files
+*.env
+*.flaskenv
+
+# MariaDB / MySQL specific
+*.db
+*.sql
+*.sql.gz
+
+# PyCharm / VS Code / IDE-specific
+.idea/
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
