@@ -10,10 +10,26 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+
 @app.route('/')
 # current task is to just display user information associated to current session
 def index():
-    return render_template('index.html')
+    is_logged_in = session.get('is_logged_in', False)
+    passenger_name = None
+
+    if is_logged_in:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        userinfo_query = """
+            select concat(fname, " ", middle_initial, " ", lname)
+            from passenger p
+            where p.passenger_id = %s
+        """
+        cursor.execute(userinfo_query, (session.get('user_id'), ))
+        passenger_name = cursor.fetchone()
+    return render_template('index.html', 
+                           is_logged_in=is_logged_in,
+                           passenger_name=passenger_name)
 
 # if login info matches to an account in the db, user logs in
 @app.route('/login', methods=['GET', 'POST'])
@@ -35,6 +51,7 @@ def login():
         # successful login
         if match_result:
             session['user_id'] = match_result[0]
+            session['is_logged_in'] = True
             return redirect('/')
         # failed login
         else:
