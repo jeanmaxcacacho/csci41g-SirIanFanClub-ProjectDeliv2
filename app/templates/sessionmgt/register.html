@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <form action="/register" method="post">
+        <label for="email">Email:</label>
+        <input type="email" name="email" required>
+        <br><br>
+
+        <label for="passkey">Password:</label>
+        <input type="password" name="passkey" required>
+        <br><br>
+
+        <label for="lname">Last Name:</label>
+        <input type="text" name="lname" required>
+        <br><br>
+
+        <label for="fname">First Name:</label>
+        <input type="text" name="fname" required>
+        <br><br>
+
+        <label for="middle_initial">Middle Initial:</label>
+        <input type="text" name="middle_initial" required>
+        <br><br>
+
+        <label for="birth_date">Birth Date:</label>
+        <input type="date" name="birth_date" required>
+        <br><br>
+
+        <label for="sex">Sex:</label>
+        <select name="sex" required>
+            <option value="" disabled selected>Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+        </select>
+        <br><br>
+
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}
