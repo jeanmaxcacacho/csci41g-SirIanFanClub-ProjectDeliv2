@@ -12,5 +12,5 @@ create table if not exists passenger(
     birth_date date not null,
     sex ENUM('M', 'F') default null,
     created_at timestamp default current_timestamp,
-    updated_at timestamp current_timestamp on update current_timestamp
+    updated_at timestamp default current_timestamp on update current_timestamp
 );
