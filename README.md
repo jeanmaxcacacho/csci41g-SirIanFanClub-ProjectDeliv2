@@ -1,7 +1,7 @@
 # We've finally made it here! 👋
 1. As usual create a virtual environment first, all source files are stored inside the `app` directory. Create your virtual environment OUTSIDE of that folder, same location as `README.md` (this file) and `requirements.txt`. Create the virtual environment via `python -m venv env` as `env/` is the folder name I specified in `.gitignore`.
 2. Install all the project dependencies by running `pip install -r requirements.txt`. You can check all the packages your virtual environment currently has access to by running `pip freeze`.
-3. Install XAMPP and add it to your system's PATH, the project uses MariaDB as its database and this is made easier to manage via XAMPP. After this source the `create_database.sql` script. You can test whether or not everything's already running by executing `python app/app.py` to serve the application. If there are no errors you must good to go.
+3. Install XAMPP and add it to your system's PATH, the project uses MariaDB as its database and this is made easier to manage via XAMPP. After this source the `migrations/create_database.sql` script. You can test whether or not everything's already running by executing `python app/app.py` to serve the application. If there are no errors you must good to go. Do note that MySQL has to be running from XAMPP control panel when testing the app.
 
 **PROTIP**: When doing back-end stuff (anything server-side/database related) it's good to have 3 active terminals, one for general purpose stuff, another for running the server (changes are applied in a 'hot reload style fashion'), and another connected to the database. This makes it easy to diagnose what your code is currently doing.
 
