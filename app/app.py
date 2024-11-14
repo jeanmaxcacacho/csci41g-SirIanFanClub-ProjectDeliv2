@@ -75,15 +75,17 @@ def register():
         middle_initial = request.form.get('middle_initial')
         birth_date = request.form.get('birth_date')
         sex = request.form.get('sex')
+        user_role = request.form.get('user_role')
 
         conn = get_db_connection()
         cursor = conn.cursor()
         registration_query = """
-            INSERT INTO passenger(email, passkey, lname, fname, middle_initial, birth_date, sex)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            insert into passenger(email, passkey, lname, fname, middle_initial, birth_date, sex, user_role)
+            values (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(registration_query, (email, passkey, lname,
-                                            fname, middle_initial, birth_date, sex))
+                                            fname, middle_initial, birth_date,
+                                            sex, user_role))
         conn.commit()
 
         cursor.close()
