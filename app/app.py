@@ -80,12 +80,26 @@ def register():
         conn = get_db_connection()
         cursor = conn.cursor()
         registration_query = """
-            insert into passenger(email, passkey, lname, fname, middle_initial, birth_date, sex, user_role)
+            insert into user(email, passkey, lname, fname, middle_initial, birth_date, sex, user_role)
             values (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(registration_query, (email, passkey, lname,
                                             fname, middle_initial, birth_date,
                                             sex, user_role))
+
+        # conditional insertion into table based on user_role
+        conditional_insert = None
+        if user_role == 'P':
+            conditional_insert = """
+                insert into passenger(user_id)
+                values (last_insert_id())
+            """
+        else:
+            conditional_insert = """
+                insert into admin(user_id)
+                values (last_insert_id())
+            """
+        cursor.execute(conditional_insert)
         conn.commit()
 
         cursor.close()
