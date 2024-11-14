@@ -15,21 +15,22 @@ Session(app)
 # current task is to just display user information associated to current session
 def index():
     is_logged_in = session.get('is_logged_in', False)
-    passenger_name = None
+    user_name = None
 
     if is_logged_in:
         conn = get_db_connection()
         cursor = conn.cursor()
         userinfo_query = """
             select concat(fname, " ", middle_initial, " ", lname)
-            from passenger p
-            where p.passenger_id = %s
+            from user u
+            where u.user_id = %s
         """
         cursor.execute(userinfo_query, (session.get('user_id'), ))
-        passenger_name = cursor.fetchone()
+        user_name = cursor.fetchone()
     return render_template('index.html', 
                            is_logged_in=is_logged_in,
-                           passenger_name=passenger_name)
+                           user_name=user_name,
+                           user_role=session.get('user_role'))
 
 # if login info matches to an account in the db, user logs in
 @app.route('/login', methods=['GET', 'POST'])
@@ -41,9 +42,9 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
         match_query = """
-        select p.passenger_id p_id
-        from passenger p
-        where p.email = %s and p.passkey = %s
+            select u.user_id u_id, u.user_role u_role
+            from user u
+            where u.email = %s and u.passkey = %s
         """
         cursor.execute(match_query, (email, passkey))
         match_result = cursor.fetchone()
@@ -51,7 +52,12 @@ def login():
         # successful login
         if match_result:
             session['user_id'] = match_result[0]
+            session['user_role'] = match_result[1]
             session['is_logged_in'] = True
+
+            cursor.close()
+            conn.close()
+
             return redirect('/')
         # failed login
         else:
@@ -75,15 +81,31 @@ def register():
         middle_initial = request.form.get('middle_initial')
         birth_date = request.form.get('birth_date')
         sex = request.form.get('sex')
+        user_role = request.form.get('user_role')
 
         conn = get_db_connection()
         cursor = conn.cursor()
         registration_query = """
-            INSERT INTO passenger(email, passkey, lname, fname, middle_initial, birth_date, sex)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            insert into user(email, passkey, lname, fname, middle_initial, birth_date, sex, user_role)
+            values (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(registration_query, (email, passkey, lname,
-                                            fname, middle_initial, birth_date, sex))
+                                            fname, middle_initial, birth_date,
+                                            sex, user_role))
+
+        # conditional insertion into table based on user_role
+        conditional_insert = None
+        if user_role == 'P':
+            conditional_insert = """
+                insert into passenger(user_id)
+                values (last_insert_id())
+            """
+        else:
+            conditional_insert = """
+                insert into admin(user_id)
+                values (last_insert_id())
+            """
+        cursor.execute(conditional_insert)
         conn.commit()
 
         cursor.close()
