@@ -3,12 +3,20 @@ from flask_session import Session
 
 from database.db import get_db_connection
 
+"""
+APPLICATION SETUP
+"""
+
 app = Flask(__name__)
 
 # session management config
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+
+"""
+DESTINATION ROUTE
+"""
 
 # destination page after login return one template and two different redirects
 # - `/admin` admin landing page (will lead to admin_dashboard.html)
@@ -28,6 +36,11 @@ def index():
                            is_logged_in=is_logged_in,
                            user_name=user_name,
                            user_role=session.get('user_role'))
+
+
+"""
+LOGIN/LOGOUT AND REGISTRATION ROUTES
+"""
 
 # if login info matches to an account in the db, user logs in
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,6 +123,10 @@ def register():
 
         return redirect('/login')
     return render_template('sessionmgt/register.html')
+
+"""
+ADMIN ROUTES
+"""
 
 # set app to debug mode makes it so that you can serve the application by running `python app.py` via terminal
 if __name__ == '__main__':
