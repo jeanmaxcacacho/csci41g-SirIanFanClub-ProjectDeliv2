@@ -128,6 +128,10 @@ ADMIN ROUTES
 def admin():
     return "Hello admin"
 
+@app.route('/addtrain')
+def addtrain():
+    return "Hello train adder"
+
 """
 MISC. SETUP
 """
