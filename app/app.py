@@ -127,7 +127,7 @@ ADMIN ROUTES
 @app.route('/admin')
 def admin():
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     trains_query = """
         select train_id t_id, train_series t_series, max_speed
         from train

@@ -7,6 +7,11 @@
     <a href='/addtrain'>Add Train</a>
     {% if trains %}
         <h4>There is at least one train I am just too lazy to render it rn.</h4>
+        {% for train in trains%}
+            <ol>
+                <li>{{ train['t_id'] }} -- {{ train['t_series'] }} -- {{ train['max_speed'] }}</li>
+            </ol>
+        {% endfor %}
     {% else %}
         <h4>There are no trains recorded yet in the database.</h4>
     {% endif %}
