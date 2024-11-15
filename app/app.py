@@ -24,7 +24,6 @@ DESTINATION ROUTE
 @app.route('/')
 def index():
     is_logged_in = session.get('is_logged_in', False)
-    user_name = None
 
     # redirect to either `admin` or `/passenger` route
     if is_logged_in:
@@ -32,10 +31,7 @@ def index():
             return redirect('/passenger')
         else:
             return redirect('/admin')
-    return render_template('index.html', 
-                           is_logged_in=is_logged_in,
-                           user_name=user_name,
-                           user_role=session.get('user_role'))
+    return render_template('index.html')
 
 
 """
