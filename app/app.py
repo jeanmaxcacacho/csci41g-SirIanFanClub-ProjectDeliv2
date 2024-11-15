@@ -124,6 +124,14 @@ def register():
 ADMIN ROUTES
 """
 
+@app.route('/admin')
+def admin():
+    return "Hello admin"
+
+"""
+MISC. SETUP
+"""
+
 # set app to debug mode makes it so that you can serve the application by running `python app.py` via terminal
 if __name__ == '__main__':
     app.run(debug=True)
