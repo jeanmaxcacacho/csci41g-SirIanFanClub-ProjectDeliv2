@@ -70,7 +70,7 @@ create table if not exists maintenance(
     train_id int,
     task varchar(255),
     condition ENUM('Excellent', 'Good', 'Satisfactory', 'Below Satisfactory', 'Poor'),
-    primary key (crew_id, train_id),
+    primary key (crew_id, train_id), -- MariaDB composite keys
     foreign key (crew_id) references crew(crew_id) on delete cascade,
     foreign key (train_id) references train(train_id) on delete cascade
 );
