@@ -3,9 +3,15 @@
     <head>
         <title>Tirian Trains</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/stylessheet/styles.css"> 
     </head>
-
     <body>
-        {% block body %}{% endblock %}
+        <div class="container">
+            <div class="image-section"></div> 
+            <div class="form-section">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+        <footer>© 2023 - Your Company. Privacy & Terms / Contact Support</footer>
     </body>
 </html>
