@@ -137,9 +137,39 @@ def admin():
     return render_template("adminpages/admin.html",
                            trains = trains)
 
-@app.route('/addtrain')
+@app.route('/addtrain' ,methods=['GET', 'POST'])
 def addtrain():
-    return "Hello train adder"
+    if request.method == 'POST':
+        train_series = request.form.get('train_series')
+        max_speed = request.form.get('max_speed')
+        seating_capacity = request.form.get('seating_capacity')
+        lavatories = request.form.get('lavatories')
+        reclining_seats = request.form.get('reclining_seats')
+        folding_tables = request.form.get('folding_tables')
+        vending_machines = request.form.get('vending_machines')
+        disability_access = request.form.get('disability_access')
+        food_service = request.form.get('food_service')
+        luggage_storage = request.form.get('luggage_storage')
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        train_insertion_query = """
+            insert into train(train_series, max_speed, seating_capacity, lavatories, reclining_seats,
+                              folding_tables, vending_machines, disability_access, food_service, luggage_storage)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(train_insertion_query, (train_series, max_speed, seating_capacity,
+                                               lavatories, reclining_seats, folding_tables,
+                                               vending_machines, disability_access, food_service, 
+                                               luggage_storage))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return redirect('/admin')
+    return render_template('adminpages/add_train.html')
 
 """
 MISC. SETUP
