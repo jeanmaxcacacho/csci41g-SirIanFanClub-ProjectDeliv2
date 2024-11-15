@@ -126,7 +126,16 @@ ADMIN ROUTES
 
 @app.route('/admin')
 def admin():
-    return "Hello admin"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    trains_query = """
+        select train_id t_id, train_series t_series, max_speed
+        from train
+    """
+    cursor.execute(trains_query)
+    trains = cursor.fetchall()
+    return render_template("adminpages/admin.html",
+                           trains = trains)
 
 @app.route('/addtrain')
 def addtrain():
