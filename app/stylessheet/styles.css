@@ -1,14 +1,20 @@
-/* General reset and basic styling */
+@font-face {
+    font-family: 'The Laker';
+    src: url('/static/fonts/the_laker/The Laker.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-
-
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'The Laker', Arial, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,10 +36,11 @@ body {
 
 .image-section {
     width: 50%;
-    background-image: url('path/to/your/image.jpg'); /* Replace with the actual path */
+    background-image: url('path/'); 
     background-size: cover;
     background-position: center;
 }
+
 
 
 .form-section {
@@ -45,8 +52,7 @@ body {
     background-color: #ffffff;
 }
 
-
-
+/* Form styling */
 form {
     display: flex;
     flex-direction: column;
@@ -84,8 +90,7 @@ form button:hover {
     background-color: #555;
 }
 
-
-
+/* Links and other elements */
 a {
     color: #333;
     text-decoration: none;
