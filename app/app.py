@@ -10,23 +10,20 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-
+# destination page after login return one template and two different redirects
+# - `/admin` admin landing page (will lead to admin_dashboard.html)
+# - `/passenger` passenger landing page (will lead to passenger_dashboard.html)
 @app.route('/')
-# current task is to just display user information associated to current session
 def index():
     is_logged_in = session.get('is_logged_in', False)
     user_name = None
 
+    # redirect to either `admin` or `/passenger` route
     if is_logged_in:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        userinfo_query = """
-            select concat(fname, " ", middle_initial, " ", lname)
-            from user u
-            where u.user_id = %s
-        """
-        cursor.execute(userinfo_query, (session.get('user_id'), ))
-        user_name = cursor.fetchone()
+        if session.get('is_logged_in') == 'P':
+            return redirect('/passenger')
+        else:
+            return redirect('/admin')
     return render_template('index.html', 
                            is_logged_in=is_logged_in,
                            user_name=user_name,
