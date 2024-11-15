@@ -27,7 +27,7 @@ def index():
 
     # redirect to either `admin` or `/passenger` route
     if is_logged_in:
-        if session.get('is_logged_in') == 'P':
+        if session.get('user_role') == 'P':
             return redirect('/passenger')
         else:
             return redirect('/admin')
