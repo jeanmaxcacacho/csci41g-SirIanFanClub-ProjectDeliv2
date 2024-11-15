@@ -1,9 +1,10 @@
 @font-face {
     font-family: 'The Laker';
-    src: url('/static/fonts/the_laker/The Laker.otf') format('opentype');
+    src: url('../static/the_laker/The Laker.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }
+
 
 
 
@@ -11,7 +12,10 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: transform 0.3s ease;
 }
+
+
 
 body {
     font-family: 'The Laker', Arial, sans-serif;
@@ -19,7 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #f2f2f2;
+    background-color: gray;
 }
 
 
@@ -41,6 +45,15 @@ body {
     background-position: center;
 }
 
+.my-image {
+    width: 100%;       
+    height: auto;      
+    display: block;    
+    
+    
+}
+
+
 
 
 .form-section {
@@ -52,7 +65,7 @@ body {
     background-color: #ffffff;
 }
 
-/* Form styling */
+
 form {
     display: flex;
     flex-direction: column;
@@ -100,6 +113,7 @@ a {
 
 a:hover {
     text-decoration: underline;
+    transform: scale(1.03)
 }
 
 /* Footer section */

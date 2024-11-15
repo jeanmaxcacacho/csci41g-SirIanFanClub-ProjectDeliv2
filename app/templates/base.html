@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
     <head>
-
         <title>Tirian Trains</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="app\stylessheet\styles.css"> 
-
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
     </head>
-
     <body>
         <div class="container">
-            <div class="image-section"></div> 
+
+
+            <div class="image-section">
+                <img src="{{ url_for('static', filename='images/LoginRegisterTrain.jpg') }}" alt="TirianTrains" class="my-image">
+            </div> 
             <div class="form-section">
                 {% block body %}{% endblock %}
+                <footer>© 2023 - Your Company. Privacy & Terms / Contact Support</footer>
             </div>
         </div>
-        <footer>© 2023 - Your Company. Privacy & Terms / Contact Support</footer>
     </body>
 </html>
