@@ -66,11 +66,11 @@ create table if not exists crew(
 );
 
 create table if not exists maintenance(
-    crew_id int,
-    train_id int,
-    task varchar(255),
-    condition ENUM('Excellent', 'Good', 'Satisfactory', 'Below Satisfactory', 'Poor'),
-    primary key (crew_id, train_id), -- MariaDB composite keys
+    crew_id int not null,
+    train_id int not null,
+    task varchar(255) not null,
+    train_condition ENUM('Excellent', 'Very Good', 'Good', 'Satisfactory', 'Poor') default null,
+    primary key (crew_id, train_id),
     foreign key (crew_id) references crew(crew_id) on delete cascade,
     foreign key (train_id) references train(train_id) on delete cascade
 );
