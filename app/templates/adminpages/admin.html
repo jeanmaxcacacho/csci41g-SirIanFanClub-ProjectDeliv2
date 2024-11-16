@@ -6,7 +6,7 @@
     <h3>All Trains</h3>
     <a href='/addtrain'>Add Train</a>
     {% if trains %}
-        <h4>There is at least one train I am just too lazy to render it rn.</h4>
+        <h4>Trains Recorded in the Database</h4>
         {% for train in trains%}
             <ol>
                 <li><a href="{{ url_for('train_detail', train_id=train['t_id']) }}">

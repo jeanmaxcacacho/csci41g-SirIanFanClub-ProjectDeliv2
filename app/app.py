@@ -140,12 +140,14 @@ def admin():
 
 # this route will bring the user to the train_detail page
 # train_detail page will also have a form to add maintenance records
-@app.route('/admin/train/<int:train_id>')
+@app.route('/admin/train/<int:train_id>', methods=['GET', 'POST'])
 def train_detail(train_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     train_query = """
-        select train_id, train_series, max_speed
+        select train_id, train_series, max_speed, seating_capacity,
+               lavatories, reclining_seats, folding_tables, vending_machines,
+               disability_access, food_service, luggage_storage
         from train
         where train_id = %s
     """

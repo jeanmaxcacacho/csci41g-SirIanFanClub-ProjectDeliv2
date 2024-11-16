@@ -1,9 +1,35 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <h1>This is train {{ train[0] }}.</h1>
-    <h1>The train belongs to {{ train[1] }}-series.</h1>
-    <h1>The train can go {{ train[2] }} KM/H.</h1>
+    <h1>Train Detail Page for {{ train[0] ~ '-' ~ train[1] }}</h1>
+
+    <h3>Train Information</h3>
+    <table border="2">
+        <tr>
+            <th>Maximum Speed</th>
+            <th>Seating Capacity</th>
+            <th>Lavatories</th>
+            <th>Reclining Seats</th>
+            <th>Folding Tables</th>
+            <th>Vending Machines</th>
+            <th>Disability Access</th>
+            <th>Food Service</th>
+            <th>Luggage Storage</th>
+        </tr>
+        <tr align="center">
+            <td>{{ train[2] }}</td>
+            <td>{{ train[3] }}</td>
+            <td>{{ train[4] }}</td>
+            <td>{{ train[5] }}</td>
+            <td>{{ train[6] }}</td>
+            <td>{{ train[7] }}</td>
+            <td>{{ train[8] }}</td>
+            <td>{{ train[9] }}</td>
+            <td>{{ train[10] }}</td>
+        </tr>
+    </table>
+
+    <h3>Maintenance History</h3>
 
     <a href="{{ url_for('admin') }}">Back to Admin</a>
 {% endblock %}
