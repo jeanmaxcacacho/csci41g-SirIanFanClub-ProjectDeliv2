@@ -172,6 +172,7 @@ def train_detail(train_id):
         from maintenance m
         join crew c on m.crew_id = c.crew_id
         where train_id = %s
+        order by maintenance_date
     """
     cursor.execute(maintenance_query, (train_id, ))
     maintenance_history = cursor.fetchall()
