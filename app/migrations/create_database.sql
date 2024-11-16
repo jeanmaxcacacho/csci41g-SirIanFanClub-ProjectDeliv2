@@ -70,6 +70,7 @@ create table if not exists maintenance(
     train_id int not null,
     task varchar(255) not null,
     train_condition ENUM('Excellent', 'Very Good', 'Good', 'Satisfactory', 'Poor') default null,
+    maintenance_date date not null,
     primary key (crew_id, train_id),
     foreign key (crew_id) references crew(crew_id) on delete cascade,
     foreign key (train_id) references train(train_id) on delete cascade

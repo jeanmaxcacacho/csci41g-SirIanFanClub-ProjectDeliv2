@@ -29,7 +29,33 @@
         </tr>
     </table>
 
+    <hr>
     <h3>Maintenance History</h3>
+    <a href="{{ url_for('add_maintenance', train_id=train[0]) }}">Add Record</a>
 
+    {% if maintenance_history %}
+
+        <table border="2">
+            <tr>
+                <th>Maintenance Date</th>
+                <th>Crew Head</th>
+                <th>Train ID</th>
+                <th>Maintenance Task</th>
+                <th>Train Condition</th>
+            </tr>
+            {% for maintenance in maintenance_history %}
+                <tr align="center">
+                    <td>{{ maintenance[0] }}</td>
+                    <td>{{ maintenance[1] }}</td>
+                    <td>{{ maintenance[2] }}</td>
+                    <td>{{ maintenance[3] }}</td>
+                    <td>{{ maintenance[4] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        <h3>There are no maintenance records currently available for this train.</h3>
+    {% endif %}
     <a href="{{ url_for('admin') }}">Back to Admin</a>
 {% endblock %}
