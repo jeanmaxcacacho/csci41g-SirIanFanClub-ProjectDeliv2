@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_session import Session
 
+from datetime import datetime, timedelta
+
 from database.db import get_db_connection
 
 """
@@ -165,6 +167,10 @@ def train_detail(train_id):
     if not train:
         return "Train not found"
     
+    filter_by = request.args.get('filter', 'all')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
     maintenance_query = """
         select maintenance_date,
                concat(c.fname, ' ', c.middle_initial, ' ', c.lname),
@@ -172,9 +178,31 @@ def train_detail(train_id):
         from maintenance m
         join crew c on m.crew_id = c.crew_id
         where train_id = %s
-        order by maintenance_date
     """
-    cursor.execute(maintenance_query, (train_id, ))
+    query_params = [train_id]
+
+    # custom date range query takes precedence since it is more specific
+    if start_date and end_date:
+        maintenance_query += " and maintenance_date between %s and %s"
+        query_params.extend([start_date, end_date])
+        filter_by = None
+    elif filter_by == 'year':
+        maintenance_query += " and maintenance_date >= %s"
+        query_params.append(datetime.now().replace(month=1, day=1).date())
+    elif filter_by == 'month':
+        maintenance_query += " and maintenance_date >= %s"
+        query_params.append(datetime.now().replace(day=1).date())
+    elif filter_by == 'week':
+        maintenance_query += " and maintenance_date between %s and %s"
+
+        today = datetime.now()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+        query_params.extend([start_of_week.date(), end_of_week.date()])
+
+    maintenance_query += " order by maintenance_date desc"
+
+    cursor.execute(maintenance_query, query_params)
     maintenance_history = cursor.fetchall()
 
     cursor.close()
@@ -182,7 +210,10 @@ def train_detail(train_id):
 
     return render_template('/adminpages/train_detail.html',
                            train=train,
-                           maintenance_history=maintenance_history)
+                           maintenance_history=maintenance_history,
+                           start_date=start_date,
+                           end_date=end_date,
+                           filter_by=filter_by)
 
 # insert maintenance record inside train_detail page
 @app.route('/admin/addmaintenance/<int:train_id>', methods=['GET', 'POST'])
