@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Add a train!</h1>
+    <form action="/addtrain" method="post">
+        <label for="train_series">Train Series: </label>
+        <select name="train_series" required>
+            <option value="" disabled selected>Select</option>
+            <option value="S">S</option>
+            <option value="A">A</option>
+        </select>
+        <br><br>
+
+        <label for="max_speed">Max Speed (KM/h): </label>
+        <input name="max_speed" type="number" min="60" max="120">
+        <br><br>
+
+        <label for="seating_capacity">Seating Capacity: </label>
+        <input name="seating_capacity" type="number" min="100" max="200">
+        <br><br>
+
+        <label for="lavatories">Lavatories: </label>
+        <input name="lavatories" type="number" min="2">
+        <br><br>
+
+        <label for="reclining_seats">Reclining Seats: </label>
+        <select name="reclining_seats" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Has reclining seats.</option>
+            <option value="N">Does not have reclining seats.</option>
+        </select>
+        <br><br>
+
+        <label for="folding_tables">Folding Tables: </label>
+        <select name="folding_tables" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Has folding tables.</option>
+            <option value="N">Does not have folding tables.</option>
+        </select>
+        <br><br>
+
+        <label for="vending_machines">Vending Machines: </label>
+        <select name="vending_machines" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Has vending machines.</option>
+            <option value="N">Does not have vending machines.</option>
+        </select>
+        <br><br>
+
+        <label for="disability_access">Disability Access: </label>
+        <select name="disability_access" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Is accessible for PWDs.</option>
+            <option value="N">Is not accessible for PWDs.</option>
+        </select>
+        <br><br>
+
+        <label for="food_service">Food Service: </label>
+        <select name="food_service" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Has food service.</option>
+            <option value="N">Does not have food service.</option>
+        </select>
+        <br><br>
+
+        <label for="luggage_storage">Luggage Storage: </label>
+        <select name="luggage_storage" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Y">Has luggage storage accommodations.</option>
+            <option value="N">Does not have luggage storage accommodations.</option>
+        </select>
+        <br><br>
+
+        <button type="submit">Add Train</button>
+    </form>
+{% endblock %}

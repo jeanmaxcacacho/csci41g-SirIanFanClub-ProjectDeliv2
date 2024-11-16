@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Tirian Trains Administrative Dashboard</h1>
+    <hr>
+    <h3>All Trains</h3>
+    <a href='/addtrain'>Add Train</a>
+    {% if trains %}
+        <h4>Trains Recorded in the Database</h4>
+        <ol>
+        {% for train in trains %}
+                <li><a href="{{ url_for('train_detail', train_id=train['t_id']) }}">
+                    {{ train['t_id'] }} -- {{ train['t_series'] }} -- {{ train['max_speed'] }}
+                </a></li>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <h4>There are no trains recorded yet in the database.</h4>
+    {% endif %}
+
+    <hr>
+    <h3>All Crews</h3>
+    <a href='/addcrew'>Add Crew</a>
+
+    {% if crews %}
+        <h4>Crews Recorded in the Database</h4>
+        <ol>
+        {% for crew in crews %}
+                <li>
+                    Crew Head: {{ crew['fname'] ~ ' ' ~ crew['middle_initial'] ~ ' ' ~ crew['lname'] }}
+                </li>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <h4>There are no crews recorded yet in the database.</h4>
+    {% endif %}
+{% endblock %}

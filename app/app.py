@@ -1,7 +1,11 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from flask_session import Session
 
 from database.db import get_db_connection
+
+"""
+APPLICATION SETUP
+"""
 
 app = Flask(__name__)
 
@@ -10,27 +14,29 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+"""
+DESTINATION ROUTE
+"""
 
+# destination page after login return one template and two different redirects
+# - `/admin` admin landing page (will lead to admin_dashboard.html)
+# - `/passenger` passenger landing page (will lead to passenger_dashboard.html)
 @app.route('/')
-# current task is to just display user information associated to current session
 def index():
     is_logged_in = session.get('is_logged_in', False)
-    user_name = None
 
+    # redirect to either `admin` or `/passenger` route
     if is_logged_in:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        userinfo_query = """
-            select concat(fname, " ", middle_initial, " ", lname)
-            from user u
-            where u.user_id = %s
-        """
-        cursor.execute(userinfo_query, (session.get('user_id'), ))
-        user_name = cursor.fetchone()
-    return render_template('index.html', 
-                           is_logged_in=is_logged_in,
-                           user_name=user_name,
-                           user_role=session.get('user_role'))
+        if session.get('user_role') == 'P':
+            return redirect('/passenger')
+        else:
+            return redirect('/admin')
+    return render_template('index.html')
+
+
+"""
+LOGIN/LOGOUT AND REGISTRATION ROUTES
+"""
 
 # if login info matches to an account in the db, user logs in
 @app.route('/login', methods=['GET', 'POST'])
@@ -113,6 +119,174 @@ def register():
 
         return redirect('/login')
     return render_template('sessionmgt/register.html')
+
+"""
+ADMIN ROUTES
+"""
+
+# this route will return a list anchor tags that will link to crew and train detail pages
+@app.route('/admin')
+def admin():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    trains_query = """
+        select train_id t_id, train_series t_series, max_speed
+        from train
+    """
+    crew_query = """
+        select lname, fname, middle_initial
+        from crew
+    """
+    cursor.execute(trains_query)
+    trains = cursor.fetchall()
+    cursor.execute(crew_query)
+    crews = cursor.fetchall()
+    return render_template("adminpages/admin.html",
+                           trains = trains,
+                           crews=crews)
+
+# this route will bring the user to the train_detail page; will have a link to `/addmaintenance`
+@app.route('/admin/train/<int:train_id>', methods=['GET', 'POST'])
+def train_detail(train_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    train_query = """
+        select train_id, train_series, max_speed, seating_capacity,
+               lavatories, reclining_seats, folding_tables, vending_machines,
+               disability_access, food_service, luggage_storage
+        from train
+        where train_id = %s
+    """
+    cursor.execute(train_query, (train_id, ))
+    train = cursor.fetchone()
+
+    # prepare an actual error page for this case
+    if not train:
+        return "Train not found"
+    
+    maintenance_query = """
+        select maintenance_date,
+               concat(c.fname, ' ', c.middle_initial, ' ', c.lname),
+               train_id, task, train_condition
+        from maintenance m
+        join crew c on m.crew_id = c.crew_id
+        where train_id = %s
+    """
+    cursor.execute(maintenance_query, (train_id, ))
+    maintenance_history = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('/adminpages/train_detail.html',
+                           train=train,
+                           maintenance_history=maintenance_history)
+
+# insert maintenance record inside train_detail page
+@app.route('/admin/addmaintenance/<int:train_id>', methods=['GET', 'POST'])
+def add_maintenance(train_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    crew_query = """
+        select crew_id,
+               concat(fname, ' ', middle_initial, ' ', lname)
+        from crew
+        order by fname
+    """
+    cursor.execute(crew_query)
+    crews = cursor.fetchall()
+
+    if not crews:
+        cursor.close()
+        conn.close()
+        return "Cannot add maintenance record with no valid crew instances."
+
+    if request.method == 'POST':
+        crew_id = request.form.get('crew_id')
+        task = request.form.get('task')
+        train_condition = request.form.get('train_condition')
+        maintenance_date = request.form.get('maintenance_date')
+
+        maintenance_insertion_query = """
+            insert into maintenance(crew_id, train_id, task, train_condition, maintenance_date)
+            values (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(maintenance_insertion_query,
+                       (crew_id, train_id, task, train_condition, maintenance_date))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('train_detail', train_id=train_id))
+
+    return render_template('/adminpages/add_maintenance.html',
+                           crews=crews,
+                           train_id=train_id)
+
+# form to add a train
+@app.route('/addtrain' ,methods=['GET', 'POST'])
+def addtrain():
+    if request.method == 'POST':
+        train_series = request.form.get('train_series')
+        max_speed = request.form.get('max_speed')
+        seating_capacity = request.form.get('seating_capacity')
+        lavatories = request.form.get('lavatories')
+        reclining_seats = request.form.get('reclining_seats')
+        folding_tables = request.form.get('folding_tables')
+        vending_machines = request.form.get('vending_machines')
+        disability_access = request.form.get('disability_access')
+        food_service = request.form.get('food_service')
+        luggage_storage = request.form.get('luggage_storage')
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        train_insertion_query = """
+            insert into train(train_series, max_speed, seating_capacity, lavatories, reclining_seats,
+                              folding_tables, vending_machines, disability_access, food_service, luggage_storage)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(train_insertion_query, (train_series, max_speed, seating_capacity,
+                                               lavatories, reclining_seats, folding_tables,
+                                               vending_machines, disability_access, food_service, 
+                                               luggage_storage))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return redirect('/admin')
+    return render_template('adminpages/add_train.html')
+
+# form to add a crew
+@app.route('/addcrew', methods=['GET', 'POST'])
+def addcrew():
+    if request.method == 'POST':
+        lname = request.form.get('lname')
+        fname = request.form.get('fname')
+        middle_initial = request.form.get('middle_initial')
+
+        crew_insertion_query = """
+            insert into crew(lname, fname, middle_initial)
+            values (%s, %s, %s)
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(crew_insertion_query, (lname, fname, middle_initial))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect('/admin')
+    return render_template('adminpages/add_crew.html')
+
+"""
+MISC. SETUP
+"""
 
 # set app to debug mode makes it so that you can serve the application by running `python app.py` via terminal
 if __name__ == '__main__':

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Train Detail Page for {{ train[0] ~ '-' ~ train[1] }}</h1>
+
+    <h3>Train Information</h3>
+    <table border="2">
+        <tr>
+            <th>Maximum Speed</th>
+            <th>Seating Capacity</th>
+            <th>Lavatories</th>
+            <th>Reclining Seats</th>
+            <th>Folding Tables</th>
+            <th>Vending Machines</th>
+            <th>Disability Access</th>
+            <th>Food Service</th>
+            <th>Luggage Storage</th>
+        </tr>
+        <tr align="center">
+            <td>{{ train[2] }}</td>
+            <td>{{ train[3] }}</td>
+            <td>{{ train[4] }}</td>
+            <td>{{ train[5] }}</td>
+            <td>{{ train[6] }}</td>
+            <td>{{ train[7] }}</td>
+            <td>{{ train[8] }}</td>
+            <td>{{ train[9] }}</td>
+            <td>{{ train[10] }}</td>
+        </tr>
+    </table>
+
+    <hr>
+    <h3>Maintenance History</h3>
+    <a href="{{ url_for('add_maintenance', train_id=train[0]) }}">Add Record</a>
+
+    {% if maintenance_history %}
+
+        <table border="2">
+            <tr>
+                <th>Maintenance Date</th>
+                <th>Crew Head</th>
+                <th>Train ID</th>
+                <th>Maintenance Task</th>
+                <th>Train Condition</th>
+            </tr>
+            {% for maintenance in maintenance_history %}
+                <tr align="center">
+                    <td>{{ maintenance[0] }}</td>
+                    <td>{{ maintenance[1] }}</td>
+                    <td>{{ maintenance[2] }}</td>
+                    <td>{{ maintenance[3] }}</td>
+                    <td>{{ maintenance[4] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        <h3>There are no maintenance records currently available for this train.</h3>
+    {% endif %}
+    <a href="{{ url_for('admin') }}">Back to Admin</a>
+{% endblock %}
