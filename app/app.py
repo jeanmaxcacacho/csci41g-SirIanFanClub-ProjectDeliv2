@@ -133,10 +133,17 @@ def admin():
         select train_id t_id, train_series t_series, max_speed
         from train
     """
+    crew_query = """
+        select lname, fname, middle_initial
+        from crew
+    """
     cursor.execute(trains_query)
     trains = cursor.fetchall()
+    cursor.execute(crew_query)
+    crews = cursor.fetchall()
     return render_template("adminpages/admin.html",
-                           trains = trains)
+                           trains = trains,
+                           crews=crews)
 
 # this route will bring the user to the train_detail page
 # train_detail page will also have a form to add maintenance records
@@ -192,6 +199,28 @@ def addtrain():
         conn.close()
         return redirect('/admin')
     return render_template('adminpages/add_train.html')
+
+@app.route('/addcrew', methods=['GET', 'POST'])
+def addcrew():
+    if request.method == 'POST':
+        lname = request.form.get('lname')
+        fname = request.form.get('fname')
+        middle_initial = request.form.get('middle_initial')
+
+        crew_insertion_query = """
+            insert into crew(lname, fname, middle_initial)
+            values (%s, %s, %s)
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(crew_insertion_query, (lname, fname, middle_initial))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect('/admin')
+    return render_template('adminpages/add_crew.html')
 
 """
 MISC. SETUP
