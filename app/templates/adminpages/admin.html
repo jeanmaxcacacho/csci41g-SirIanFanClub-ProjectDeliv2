@@ -9,7 +9,9 @@
         <h4>There is at least one train I am just too lazy to render it rn.</h4>
         {% for train in trains%}
             <ol>
-                <li>{{ train['t_id'] }} -- {{ train['t_series'] }} -- {{ train['max_speed'] }}</li>
+                <li><a href="{{ url_for('train_detail', train_id=train['t_id']) }}">
+                    {{ train['t_id'] }} -- {{ train['t_series'] }} -- {{ train['max_speed'] }}
+                </a></li>
             </ol>
         {% endfor %}
     {% else %}

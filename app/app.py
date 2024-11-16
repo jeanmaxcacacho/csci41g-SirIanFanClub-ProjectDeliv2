@@ -124,6 +124,7 @@ def register():
 ADMIN ROUTES
 """
 
+# this route will return a list anchor tags that will link to crew and train detail pages
 @app.route('/admin')
 def admin():
     conn = get_db_connection()
@@ -136,6 +137,25 @@ def admin():
     trains = cursor.fetchall()
     return render_template("adminpages/admin.html",
                            trains = trains)
+
+# this route will bring the user to the train_detail page
+# train_detail page will also have a form to add maintenance records
+@app.route('/admin/train/<int:train_id>')
+def train_detail(train_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    train_query = """
+        select train_id, train_series, max_speed
+        from train
+        where train_id = %s
+    """
+    cursor.execute(train_query, (train_id, ))
+    train = cursor.fetchone()
+    # prepare an actual error page for this case
+    if not train:
+        return "Train not found"
+    return render_template('/adminpages/train_detail.html',
+                           train=train)
 
 @app.route('/addtrain' ,methods=['GET', 'POST'])
 def addtrain():

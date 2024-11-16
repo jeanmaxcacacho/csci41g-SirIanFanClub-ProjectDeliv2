@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>This is train {{ train[0] }}.</h1>
+    <h1>The train belongs to {{ train[1] }}-series.</h1>
+    <h1>The train can go {{ train[2] }} KM/H.</h1>
+
+    <a href="{{ url_for('admin') }}">Back to Admin</a>
+{% endblock %}
