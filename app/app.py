@@ -130,13 +130,14 @@ ADMIN ROUTES
 @app.route('/admin')
 def admin():
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor()
     trains_query = """
         select train_id t_id, train_series t_series, max_speed
         from train
     """
     crew_query = """
-        select lname, fname, middle_initial
+        select crew_id,
+               concat(fname, ' ', middle_initial, ' ', lname)
         from crew
     """
     cursor.execute(trains_query)
