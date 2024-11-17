@@ -173,10 +173,12 @@ def train_detail(train_id):
     
     maintenance_query = """
         select maintenance_date,
+               concat(u.fname, ' ', u.middle_initial, ' ', u.lname),
                concat(c.fname, ' ', c.middle_initial, ' ', c.lname),
                train_id, task, train_condition
         from maintenance m
         join crew c on m.crew_id = c.crew_id
+        join user u on m.user_id = u.user_id
         where train_id = %s
     """
     query_params = [train_id]
@@ -237,16 +239,17 @@ def add_maintenance(train_id):
 
     if request.method == 'POST':
         crew_id = request.form.get('crew_id')
+        user_id = session.get('user_id')
         task = request.form.get('task')
         train_condition = request.form.get('train_condition')
         maintenance_date = request.form.get('maintenance_date')
 
         maintenance_insertion_query = """
-            insert into maintenance(crew_id, train_id, task, train_condition, maintenance_date)
-            values (%s, %s, %s, %s, %s)
+            insert into maintenance(crew_id, train_id, user_id, task, train_condition, maintenance_date)
+            values (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(maintenance_insertion_query,
-                       (crew_id, train_id, task, train_condition, maintenance_date))
+                       (crew_id, train_id, user_id, task, train_condition, maintenance_date))
         conn.commit()
 
         cursor.close()
