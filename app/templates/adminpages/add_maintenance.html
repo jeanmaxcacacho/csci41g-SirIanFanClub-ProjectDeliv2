@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Add a maintenance record.</h1>
+
+    <form action="{{ url_for('add_maintenance', train_id=train_id) }}" method="post">
+        <label for="crew_id">Crew Head in Charge: </label>
+        <select name="crew_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for crew in crews %}
+                <option value="{{ crew[0] }}">{{ crew[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="task">Maintenance Done: </label>
+        <input type="text" name="task" required>
+        <br><br>
+
+        <label for="train_condition">Train Condition: </label>
+        <select name="train_condition" required>
+            <option value="" disabled selected>Select</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Very Good">Very Good</option>
+            <option value="Good">Good</option>
+            <option value="Satisfactory">Satisfactory</option>
+            <option value="Poor">Poor</option>
+        </select>
+        <br><br>
+
+        <label for="maintenance_date">Maintenance Date: </label>
+        <input type="date" name="maintenance_date" required>
+        <br><br>
+
+        <button type="submit">Add Record</button>
+    </form>
+{% endblock %}

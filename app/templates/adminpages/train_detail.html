@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Train Detail Page for {{ train[0] ~ '-' ~ train[1] }}</h1>
+
+    <h3>Train Information</h3>
+    <table border="2">
+        <tr>
+            <th>Maximum Speed</th>
+            <th>Seating Capacity</th>
+            <th>Lavatories</th>
+            <th>Reclining Seats</th>
+            <th>Folding Tables</th>
+            <th>Vending Machines</th>
+            <th>Disability Access</th>
+            <th>Food Service</th>
+            <th>Luggage Storage</th>
+        </tr>
+        <tr align="center">
+            <td>{{ train[2] }}</td>
+            <td>{{ train[3] }}</td>
+            <td>{{ train[4] }}</td>
+            <td>{{ train[5] }}</td>
+            <td>{{ train[6] }}</td>
+            <td>{{ train[7] }}</td>
+            <td>{{ train[8] }}</td>
+            <td>{{ train[9] }}</td>
+            <td>{{ train[10] }}</td>
+        </tr>
+    </table>
+
+    <hr>
+    <h1>Maintenance History</h1>
+
+    <form action="{{ url_for('train_detail', train_id=train[0]) }}" method="get">
+        <label for="filter">Filter By: </label>
+        <select name="filter">
+            <option value="all">All Records</option>
+            <option value="year">This Year</option>
+            <option value="month">This Month</option>
+            <option value="week">This Week</option>
+        </select>
+        <br><br>
+
+        <h3>Custom Timesplit Search</h3>
+        <label for="start_date">Start Date: </label>
+        <input type="date" name="start_date">
+        <br><br>
+
+        <label for="end_date">End Date: </label>
+        <input type="date" name="end_date">
+        <br><br>
+
+        <button type="submit">Apply Filter</button>
+    </form>
+
+    {% if maintenance_history %}
+
+        {% if start_date and end_date %}
+            <h3>Showing records from {{ start_date }} up until {{ end_date }}</h3>
+        {% elif filter_by == "year" %}
+            <h3>Showing records within the year</h3>
+        {% elif filter_by == "month" %}
+            <h3>Showing records within the month</h3>
+        {% elif filter_by == "week" %}
+            <h3>Showing records within the working week</h3>
+        {% else %}
+            <h3>Showing all records</h3>
+        {% endif %}
+
+        <table border="2">
+            <tr>
+                <th>Maintenance Date</th>
+                <th>Recorded By</th>
+                <th>Crew Head</th>
+                <th>Train ID</th>
+                <th>Maintenance Task</th>
+                <th>Train Condition</th>
+            </tr>
+            {% for maintenance in maintenance_history %}
+                <tr align="center">
+                    <td>{{ maintenance[0] }}</td>
+                    <td>{{ maintenance[1] }}</td>
+                    <td>{{ maintenance[2] }}</td>
+                    <td>{{ maintenance[3] }}</td>
+                    <td>{{ maintenance[4] }}</td>
+                    <td>{{ maintenance[5] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        <h3>There are no maintenance records currently available for the chosen search filter.</h3>
+    {% endif %}
+
+    <a href="{{ url_for('add_maintenance', train_id=train[0]) }}">Add Record</a>
+    <a href="{{ url_for('admin') }}">Back to Admin</a>
+{% endblock %}
