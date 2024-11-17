@@ -1,11 +1,9 @@
 @font-face {
-    font-family: 'The Laker';
-    src: url('../static/the_laker/The Laker.otf') format('opentype');
+    font-family: 'Flange';
+    src: url('../static/Flange BQ Bold.ttf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }
-
-
 
 
 * {
@@ -15,60 +13,70 @@
     transition: transform 0.3s ease;
 }
 
-
-
 body {
-    font-family: 'The Laker', Arial, sans-serif;
+    font-family: 'Flange', Arial, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    background-color: gray;
+    height: 100vh; 
+    overflow: hidden;
+    background: url('../static/images/Thomas&FriendsBG.jpg') no-repeat center center/cover;
 }
 
 
+h1, h2 {
+    font-family: 'Flange';
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 0px;
+}
+
+h1{
+    margin-bottom: -20px;
+    font-size: 40px;
+}
 
 .container {
     display: flex;
-    width: 800px;
-    height: 500px;
+    width: 1200px; 
+    height: 90%; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    overflow: hidden; 
+    background-color: #ffffff;
+    border-radius: 8px;
 }
-
-
 
 .image-section {
     width: 50%;
-    background-image: url('path/'); 
-    background-size: cover;
-    background-position: center;
+    height: 100%;
+    background-size: auto 200%; 
+    background-repeat: no-repeat;
+    background-position: center; 
 }
+
+
 
 .my-image {
     width: 100%;       
     height: auto;      
     display: block;    
-    
-    
 }
-
 
 
 
 .form-section {
     width: 50%;
-    padding: 40px;
+    padding: 20px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: #ffffff;
+    overflow-y: auto;
 }
-
 
 form {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 form label {
@@ -82,16 +90,18 @@ form input[type="password"],
 form input[type="text"],
 form input[type="date"],
 form select {
-    padding: 10px;
+    padding: 8px; 
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 15px;
+    margin-bottom: 10px; 
 }
+
 
 form button {
     background-color: #333;
     color: white;
+    margin: 10px;
     padding: 10px;
     border: none;
     border-radius: 4px;
@@ -99,24 +109,15 @@ form button {
     cursor: pointer;
 }
 
+
+
 form button:hover {
     background-color: #555;
+    transform: scale(1.03);
 }
 
-/* Links and other elements */
-a {
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-    margin-top: 10px;
-}
 
-a:hover {
-    text-decoration: underline;
-    transform: scale(1.03)
-}
 
-/* Footer section */
 footer {
     font-size: 12px;
     color: #888;
