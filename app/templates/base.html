@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
     <head>
         <title>Tirian Trains</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
     </head>
-    <body>
 
+    <body class="{% block body_class %}{% endblock %}">
         
         <div class="container">
-
-
-            <div class="image-section">
-                <img src="{{ url_for('static', filename='images/LoginRegisterTrain.jpg') }}" alt="TirianTrains" class="my-image">
-            </div> 
+            {% block image_section %}
+            {% endblock %}
             <div class="form-section">
                 {% block body %}{% endblock %}
                 <footer>© 2023 - Tirian Trains.</footer>
             </div>
         </div>
-
-
     </body>
 </html>
