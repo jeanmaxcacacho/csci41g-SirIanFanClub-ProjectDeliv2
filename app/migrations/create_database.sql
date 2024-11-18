@@ -77,3 +77,54 @@ create table if not exists maintenance(
     foreign key (train_id) references train(train_id) on delete cascade,
     foreign key (user_id) references user(user_id) on delete cascade
 );
+
+-- ROUTES
+create table if not exists route(
+    route_id int not null auto_increment unique primary key,
+    train_id not null,
+    primary key (route_id, train_id),
+    foreign key (train_id) references train(train_id) on delete cascade
+);
+
+create table if not exists local_route(
+    route_id int not null,
+    localstation_id int not null,
+    localstation_id2 int not null,
+    price int not null,
+    Duration time not null,
+    primary key (route_id, localstation_id, localstation_id2),
+    foreign key (route_id) references route(route_id),
+    foreign key (localstation_id) references local_station(localstation_id) on delete cascade,
+    foreign key (localstation_id2) references local_station(localstation_id) on delete cascade
+);
+
+create table intertown_route(
+    route_id int not null,
+    interstation_id int not null,
+    interstation_id2 int not null,
+    price int not null,
+    Duration time not null,
+    primary key (route_id, interstation_id, interstation_id2),
+    foreign key (route_id) references route(route_id),
+    foreign key (interstation_id) references intertown_station(interstation_id) on delete cascade,
+    foreign key (interstation_id2) references intertown_station(interstation_id) on delete cascade
+);
+
+create table local_station(
+    localstation_id int not null auto_increment unique primary key,
+    town_name varchar(255),
+    is_origin boolean,
+    primary key (localstation_id, town_name),
+    foreign key (town_name) references town(town_name) on delete cascade
+);
+ create table intertown_station(
+    interstation_id int not null auto_increment unique primary key,
+    town_name varchar(255),
+    is_origin boolean,
+    primary key (interstation_id, town_name),
+    foreign key (town_name) references town(town_name) on delete cascade
+);
+
+create table town(
+    town_name varchar(255) not null auto_increment unique primary key
+);
