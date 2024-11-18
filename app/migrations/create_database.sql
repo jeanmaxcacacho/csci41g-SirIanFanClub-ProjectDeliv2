@@ -79,52 +79,90 @@ create table if not exists maintenance(
 );
 
 -- ROUTES
-create table if not exists route(
+create table if not exists station(
+    station_id int not null auto_increment unique primary key,
+    station_name varchar(255)
+);
+
+create table if not exists local_station(
+    station_id int primary key,
+    foreign key (station_id) references station(station_id)
+);
+
+ create table if not exists intertown_station(
+    station_id int primary key,
+    foreign key (station_id) references station(station_id)
+);
+
+create table if not exists routes(
     route_id int not null auto_increment unique primary key,
     train_id not null,
-    primary key (route_id, train_id),
     foreign key (train_id) references train(train_id) on delete cascade
 );
 
 create table if not exists local_route(
     route_id int not null,
-    localstation_id int not null,
-    localstation_id2 int not null,
+    localorigin_id int not null,
+    localdestination_id int not null,
     price int not null,
     Duration time not null,
-    primary key (route_id, localstation_id, localstation_id2),
-    foreign key (route_id) references route(route_id),
-    foreign key (localstation_id) references local_station(localstation_id) on delete cascade,
-    foreign key (localstation_id2) references local_station(localstation_id) on delete cascade
+    primary key (route_id, localorigin_id, localdestination_id),
+    foreign key (route_id) references routes(route_id),
+    foreign key (localorigin_id) references local_station(station_id) on delete cascade,
+    foreign key (localdestination_id) references local_station(station_id) on delete cascade
 );
 
-create table intertown_route(
+create table if not exists intertown_route(
     route_id int not null,
-    interstation_id int not null,
-    interstation_id2 int not null,
+    interorigin_id int not null,
+    interdestination_id int not null,
     price int not null,
     Duration time not null,
-    primary key (route_id, interstation_id, interstation_id2),
-    foreign key (route_id) references route(route_id),
-    foreign key (interstation_id) references intertown_station(interstation_id) on delete cascade,
-    foreign key (interstation_id2) references intertown_station(interstation_id) on delete cascade
+    primary key (route_id, interorigin_id, interdestination_id),
+    foreign key (route_id) references routes(route_id),
+    foreign key (interorigin_id) references intertown_station(station_id) on delete cascade,
+    foreign key (interdestination_id) references intertown_station(station_id) on delete cascade
 );
 
-create table local_station(
-    localstation_id int not null auto_increment unique primary key,
-    town_name varchar(255),
-    is_origin boolean,
-    primary key (localstation_id, town_name),
-    foreign key (town_name) references town(town_name) on delete cascade
-);
- create table intertown_station(
-    interstation_id int not null auto_increment unique primary key,
-    town_name varchar(255),
-    is_origin boolean,
-    primary key (interstation_id, town_name),
-    foreign key (town_name) references town(town_name) on delete cascade
+-- SCHEDULING AND SALES
+create table if not exists trip(
+     trip_id int not null auto_increment unique primary key,
+     train_id int not null,
+     departure_date date not null,
+     departure_time time not null
+     foreign key (train_id) references train(train_id)
 );
 
-create table town(
-    town_name varchar(255) not null auto_increment unique primary key
+create table if not exists local_trip(
+    trip_id int not null,
+    route_id int not null,
+    arrival_time time not null,
+    primary key (trip_id, route_id),
+    foreign key (trip_id) references trip(trip_id)
+    foreign key (route_id) references routes(route_id)
+);
+
+create table if not exists intertown_trip(
+    trip_id int not null,
+    route_id int not null,
+    arrival_time time not null,
+    primary key (trip_id, route_id),
+    foreign key (trip_id) references trip(trip_id)
+);
+
+create table if not exists ticket(
+    ticket_id int not null auto_increment unique primary key,
+    travel_date date not null,
+    total_cost int not null,
+    purchase_date timestamp default current_timestamp,
+    bought_on date default current_date
+);
+
+create table if not exists passenger(
+    customer_id int not null auto_increment unique primary key,
+    lname varchar(255) not null,
+    fname varchar(255) not null,
+    middle_initial varchar(5) not null,
+    birth_date date not null,
+    gender ENUM('M', 'F') default null
 );
