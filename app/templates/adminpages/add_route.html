@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Add a route.</h1>
+
+    <form action="{{ url_for('add_route', route_type=route_type) }}" method="post">
+
+        <label for="train_id">Select Train: </label>
+        <select name="train_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for train in trains %}
+                <option value="{{ train[0] }}">{{ train[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="origin_id">Origin Station: </label>
+        <select name="origin_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for station in stations %}
+                <option value="{{ station[0] }}">{{ station[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="destination_id">Destination Station: </label>
+        <select name="destination_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for station in stations %}
+                <option value="{{ station[0] }}">{{ station[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="price">Trip Price: </label>
+        <input type="text" name="price" required>
+        <br><br>
+
+        <label for="duration">Trip Duration: </label>
+        <input type="text" name="duration" required>
+        <br><br>
+
+        <button type="submit">Add Route</button>
+    </form>
+{% endblock %}

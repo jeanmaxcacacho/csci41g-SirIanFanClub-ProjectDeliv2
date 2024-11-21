@@ -264,7 +264,7 @@ def add_maintenance(train_id):
 
 # form to add a train
 @app.route('/addtrain' ,methods=['GET', 'POST'])
-def addtrain():
+def add_train():
     if request.method == 'POST':
         train_series = request.form.get('train_series')
         max_speed = request.form.get('max_speed')
@@ -299,7 +299,7 @@ def addtrain():
 
 # form to add a crew
 @app.route('/addcrew', methods=['GET', 'POST'])
-def addcrew():
+def add_crew():
     if request.method == 'POST':
         lname = request.form.get('lname')
         fname = request.form.get('fname')
@@ -319,6 +319,96 @@ def addcrew():
 
         return redirect('/admin')
     return render_template('adminpages/add_crew.html')
+
+# form to register a station
+@app.route('/addstation', methods=['GET', 'POST'])
+def add_station():
+    if request.method == 'POST':
+
+        station_name = request.form.get('station_name')
+        station_type = request.form.get('station_type')
+
+        conn = get_db_connection
+        cursor = conn.cursor()
+
+        station_insertion_query = '''
+            insert into station(station_name)
+            values (%s, %s)
+        '''
+        cursor.execute(station_insertion_query, (station_name, station_type))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/admin')
+    
+    return render_template('adminpages/add_station.html')
+
+@app.route('/addroute/<str:route_type>', methods=['GET', 'POST'])
+def add_route(route_type):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # filter between train series
+    if route_type == 'L':
+        train_series = 'S'
+    else:
+        train_series = 'A'
+    
+    train_query = '''
+        select train_id, concat(train_series, '-', train_id)
+        from train
+        where train_series = %s
+    '''
+    cursor.execute(train_query, (train_series,))
+    trains = cursor.fetchall()
+
+    station_query = '''
+        select station_id, station_name
+        from station
+        where station_type = %s
+    '''
+    cursor.execute(station_query, (route_type,))
+    stations = cursor.fetchall()
+
+    if not trains or not stations:
+        cursor.close()
+        conn.close()
+        return 'Cannot add route with no valid train or station instances'
+    
+    if request.method == 'POST':
+        train_id = request.form.get('train_id')
+        origin_id = request.form.get('origin_id')
+        destination_id = request.form.get('destination_id')
+        price = request.form.get('price')
+        duration = request.form.get('duration')
+
+        if route_type == 'L':
+            price = 2
+            duration = '00:05:00'
+
+        route_insertion_query = '''
+            insert into routes(train_id, origin_id, destination_id, price, duration)
+            values (%s, %s, %s, %s, %s)
+        '''
+        cursor.execute(route_insertion_query, (train_id, origin_id, destination_id, price, duration))
+
+        if route_type == 'L':
+            route_subtype_insert = '''
+                insert into local_route(route_id)
+                values (last_insert_id())
+            '''
+        else:
+            route_subtype_insert = '''
+                insert intertown_route(route_id)
+                values (last_insert_id())
+            '''
+        cursor.execute(route_subtype_insert)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return render_template('/add_route', trains=trains, stations=stations, route_type=route_type)
 
 """
 MISC. SETUP

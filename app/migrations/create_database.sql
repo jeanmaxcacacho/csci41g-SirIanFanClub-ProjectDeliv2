@@ -81,47 +81,28 @@ create table if not exists maintenance(
 -- ROUTES
 create table if not exists station(
     station_id int not null auto_increment unique primary key,
-    station_name varchar(255)
-);
-
-create table if not exists local_station(
-    station_id int primary key,
-    foreign key (station_id) references station(station_id)
-);
-
- create table if not exists intertown_station(
-    station_id int primary key,
-    foreign key (station_id) references station(station_id)
+    station_name varchar(255),
+    station_type ENUM('L', 'I') default null
 );
 
 create table if not exists routes(
     route_id int not null auto_increment unique primary key,
     train_id not null,
+    origin_id int not null,
+    destination_id int not null,
+    price int not null,
+    duration time not null,
     foreign key (train_id) references train(train_id) on delete cascade
 );
 
 create table if not exists local_route(
-    route_id int not null,
-    localorigin_id int not null,
-    localdestination_id int not null,
-    price int not null,
-    Duration time not null,
-    primary key (route_id, localorigin_id, localdestination_id),
-    foreign key (route_id) references routes(route_id),
-    foreign key (localorigin_id) references local_station(station_id) on delete cascade,
-    foreign key (localdestination_id) references local_station(station_id) on delete cascade
+    route_id int primary key,
+    foreign key (route_id) references routes(route_id) on delete cascade
 );
 
 create table if not exists intertown_route(
-    route_id int not null,
-    interorigin_id int not null,
-    interdestination_id int not null,
-    price int not null,
-    Duration time not null,
-    primary key (route_id, interorigin_id, interdestination_id),
-    foreign key (route_id) references routes(route_id),
-    foreign key (interorigin_id) references intertown_station(station_id) on delete cascade,
-    foreign key (interdestination_id) references intertown_station(station_id) on delete cascade
+    route_id int primary key,
+    foreign key (route_id) references routes(route_id) on delete cascade
 );
 
 -- SCHEDULING AND SALES
@@ -130,7 +111,7 @@ create table if not exists trip(
      train_id int not null,
      departure_date date not null,
      departure_time time not null
-     foreign key (train_id) references train(train_id)
+     foreign key (train_id) references train(train_id) on delete cascade
 );
 
 create table if not exists local_trip(
@@ -138,8 +119,8 @@ create table if not exists local_trip(
     route_id int not null,
     arrival_time time not null,
     primary key (trip_id, route_id),
-    foreign key (trip_id) references trip(trip_id)
-    foreign key (route_id) references routes(route_id)
+    foreign key (trip_id) references trip(trip_id) on delete cascade
+    foreign key (route_id) references routes(route_id) on delete cascade
 );
 
 create table if not exists intertown_trip(
@@ -147,7 +128,8 @@ create table if not exists intertown_trip(
     route_id int not null,
     arrival_time time not null,
     primary key (trip_id, route_id),
-    foreign key (trip_id) references trip(trip_id)
+    foreign key (trip_id) references trip(trip_id) on delete cascade
+    foreign key (route_id) references routes(route_id) on delete cascade
 );
 
 create table if not exists ticket(
