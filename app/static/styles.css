@@ -124,3 +124,84 @@ footer {
     text-align: center;
     margin-top: 20px;
 }
+
+
+/* ADMIN PAGES */
+/* Table styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+.data-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+    background-color: #eaeaea;
+}
+
+/* No data message */
+.no-data {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+}
+
+/* Section header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.action-link {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.action-link:hover {
+    background-color: #007bff;
+    color: #fff;
+    transform: scale(1.03);
+}
+
+/* Links in the table */
+.detail-link {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.detail-link:hover {
+    color: #0056b3;
+}
