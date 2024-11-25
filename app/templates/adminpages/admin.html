@@ -48,4 +48,88 @@
     {% else %}
         <h4>There are no crews recorded yet in the database.</h4>
     {% endif %}
+    
+    <hr>
+    <h3>All Stations</h3>
+    <a href="/addstation">Add Station</a>
+
+    {% if stations %}
+        <h4>Stations in the Database</h4>
+        <table border="2">
+            <tr>
+                <th>Station ID</th>
+                <th>Station Name</th>
+                <th>Station Type</th>
+            </tr>
+            {% for station in stations %}
+                <tr align="center">
+                    <td>{{ station[0] }}</td>
+                    <td>{{ station[1] }}</td>
+                    <td>{{ station[2] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no stations recorded yet in the database.</h4>
+    {% endif %}
+    
+    <hr>
+    <h3>All Local Routes</h3>
+    <a href="{{ url_for('add_route', route_type='L') }}">Add Local Route</a>
+    
+    {% if local_routes %}
+        <h4>Local Routes in the Database</h4>
+        <table border="2">
+            <tr>
+                <th>Route ID</th>
+                <th>Train ID</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Duration</th>
+                <th>Price (in gold coins)</th>
+            </tr>
+            {% for local_route in local_routes %}
+                <tr align="center">
+                    <td>{{ local_route[0] }}</td>
+                    <td>{{ local_route[1] }}</td>
+                    <td>{{ local_route[2] }}</td>
+                    <td>{{ local_route[3] }}</td>
+                    <td>{{ local_route[4] }}</td>
+                    <td>{{ local_route[5] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no local routes recorded yet in the database.</h4>
+    {% endif %}
+    
+    <hr>
+    <h3>All Inter-town Routes</h3>
+    <a href="{{ url_for('add_route', route_type='I') }}">Add Inter-town Route</a>
+
+    {% if intertown_routes %}
+        <h4>Inter-town Routes in the Database</h4>
+        <table border="2">
+            <tr>
+                <th>Route ID</th>
+                <th>Train ID</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Duration</th>
+                <th>Price (in gold coins)</th>
+            </tr>
+            {% for intertown_route in intertown_routes %}
+                <tr align="center">
+                    <td>{{ intertown_route[0] }}</td>
+                    <td>{{ intertown_route[1] }}</td>
+                    <td>{{ intertown_route[2] }}</td>
+                    <td>{{ intertown_route[3] }}</td>
+                    <td>{{ intertown_route[4] }}</td>
+                    <td>{{ intertown_route[5] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no local routes recorded yet in the database.</h4>
+    {% endif %}
 {% endblock %}

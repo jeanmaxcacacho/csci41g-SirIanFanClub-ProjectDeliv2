@@ -140,13 +140,42 @@ def admin():
                concat(fname, ' ', middle_initial, ' ', lname)
         from crew
     """
+    station_query = """
+        select *
+        from station
+        order by station_type
+    """
+    local_route_query = """
+        select lr.route_id, r.train_id, os.station_name, ds.station_name, r.price, r.duration
+        from local_route lr
+        join routes r on lr.route_id=r.route_id
+        join station os on r.origin_id=os.station_id
+        join station ds on r.destination_id=ds.station_id
+    """
+    intertown_route_query = """
+        select ir.route_id, r.train_id, os.station_name, ds.station_name, r.price, r.duration
+        from intertown_route ir
+        join routes r on ir.route_id=r.route_id
+        join station os on r.origin_id=os.station_id
+        join station ds on r.destination_id=ds.station_id
+    """
     cursor.execute(trains_query)
     trains = cursor.fetchall()
     cursor.execute(crew_query)
     crews = cursor.fetchall()
+    cursor.execute(station_query)
+    stations = cursor.fetchall()
+    cursor.execute(local_route_query)
+    local_routes = cursor.fetchall()
+    cursor.execute(intertown_route_query)
+    intertown_routes = cursor.fetchall()
+
     return render_template("adminpages/admin.html",
-                           trains = trains,
-                           crews=crews)
+                           trains=trains,
+                           crews=crews,
+                           stations=stations,
+                           local_routes=local_routes,
+                           intertown_routes=intertown_routes)
 
 # this route will bring the user to the train_detail page; will have a link to `/addmaintenance`
 @app.route('/admin/train/<int:train_id>', methods=['GET', 'POST'])
@@ -321,7 +350,7 @@ def add_crew():
     return render_template('adminpages/add_crew.html')
 
 # form to register a station
-@app.route('/addstation', methods=['GET', 'POST'])
+@app.route('/add_station', methods=['GET', 'POST'])
 def add_station():
     if request.method == 'POST':
 
@@ -331,10 +360,10 @@ def add_station():
         conn = get_db_connection
         cursor = conn.cursor()
 
-        station_insertion_query = '''
-            insert into station(station_name)
+        station_insertion_query = """
+            insert into station(station_name, station_type)
             values (%s, %s)
-        '''
+        """
         cursor.execute(station_insertion_query, (station_name, station_type))
         
         conn.commit()
@@ -344,7 +373,8 @@ def add_station():
     
     return render_template('adminpages/add_station.html')
 
-@app.route('/addroute/<str:route_type>', methods=['GET', 'POST'])
+# form to register route
+@app.route('/add_route/<string:route_type>', methods=['GET', 'POST'])
 def add_route(route_type):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -355,19 +385,19 @@ def add_route(route_type):
     else:
         train_series = 'A'
     
-    train_query = '''
+    train_query = """
         select train_id, concat(train_series, '-', train_id)
         from train
         where train_series = %s
-    '''
+    """
     cursor.execute(train_query, (train_series,))
     trains = cursor.fetchall()
 
-    station_query = '''
+    station_query = """
         select station_id, station_name
         from station
         where station_type = %s
-    '''
+    """
     cursor.execute(station_query, (route_type,))
     stations = cursor.fetchall()
 
@@ -387,28 +417,28 @@ def add_route(route_type):
             price = 2
             duration = '00:05:00'
 
-        route_insertion_query = '''
+        route_insertion_query = """
             insert into routes(train_id, origin_id, destination_id, price, duration)
             values (%s, %s, %s, %s, %s)
-        '''
+        """
         cursor.execute(route_insertion_query, (train_id, origin_id, destination_id, price, duration))
 
         if route_type == 'L':
-            route_subtype_insert = '''
+            route_subtype_insert = """
                 insert into local_route(route_id)
                 values (last_insert_id())
-            '''
+            """
         else:
-            route_subtype_insert = '''
-                insert intertown_route(route_id)
+            route_subtype_insert = """
+                insert into intertown_route(route_id)
                 values (last_insert_id())
-            '''
+            """
         cursor.execute(route_subtype_insert)
 
     conn.commit()
     cursor.close()
     conn.close()
-    return render_template('/add_route', trains=trains, stations=stations, route_type=route_type)
+    return render_template('/add_route/<string:route_type>', trains=trains, stations=stations, route_type=route_type)
 
 """
 MISC. SETUP
