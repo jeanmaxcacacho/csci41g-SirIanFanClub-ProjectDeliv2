@@ -380,7 +380,7 @@ def add_route(route_type):
     cursor = conn.cursor()
 
     # filter between train series
-    if route_type == 'L':
+    if route_type == 'local':
         train_series = 'S'
     else:
         train_series = 'A'
@@ -413,7 +413,7 @@ def add_route(route_type):
         price = request.form.get('price')
         duration = request.form.get('duration')
 
-        if route_type == 'L':
+        if route_type == 'local':
             price = 2
             duration = '00:05:00'
 
@@ -423,7 +423,7 @@ def add_route(route_type):
         """
         cursor.execute(route_insertion_query, (train_id, origin_id, destination_id, price, duration))
 
-        if route_type == 'L':
+        if route_type == 'local':
             route_subtype_insert = """
                 insert into local_route(route_id)
                 values (last_insert_id())

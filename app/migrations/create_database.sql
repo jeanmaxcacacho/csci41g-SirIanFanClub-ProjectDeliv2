@@ -81,8 +81,8 @@ create table if not exists maintenance(
 -- ROUTES
 create table if not exists station(
     station_id int not null auto_increment unique primary key,
-    station_name varchar(255),
-    station_type ENUM('L', 'I')
+    station_name varchar(255) not null,
+    station_type ENUM('local', 'inter-town') not null
 );
 
 create table if not exists routes(
@@ -97,12 +97,12 @@ create table if not exists routes(
     foreign key (destination_id) references station(station_id) on delete cascade
 );
 
-create table if not exists local_routes(
+create table if not exists local_route(
     route_id int primary key,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
 
-create table if not exists intertown_routes(
+create table if not exists intertown_route(
     route_id int primary key,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
@@ -113,36 +113,34 @@ create table if not exists trip(
      train_id int not null,
      departure_date date not null,
      departure_time time not null,
+     arrival_time time not null,
      foreign key (train_id) references train(train_id) on delete cascade
 );
 
 create table if not exists local_trip(
-    trip_id int not null,
+    trip_id int not null primary key,
     route_id int not null,
-    arrival_time time not null,
-    primary key (trip_id, route_id),
     foreign key (trip_id) references trip(trip_id) on delete cascade,
-    foreign key (route_id) references routes(route_id) on delete cascade
+    foreign key (route_id) references local_route(route_id) on delete cascade
 );
 
 create table if not exists intertown_trip(
-    trip_id int not null,
+    trip_id int not null primary key,
     route_id int not null,
-    arrival_time time not null,
-    primary key (trip_id, route_id),
     foreign key (trip_id) references trip(trip_id) on delete cascade,
-    foreign key (route_id) references routes(route_id) on delete cascade
+    foreign key (route_id) references intertown_route(route_id) on delete cascade
 );
 
 create table if not exists ticket(
     ticket_id int not null auto_increment unique primary key,
+    customer_id int not null,
     travel_date date not null,
     total_cost int not null,
     purchase_date timestamp default current_timestamp,
-    bought_on date default current_date
+    foreign key (customer_id) references customer(customer_id) on delete cascade
 );
 
-create table if not exists passenger(
+create table if not exists customer(
     customer_id int not null auto_increment unique primary key,
     lname varchar(255) not null,
     fname varchar(255) not null,
