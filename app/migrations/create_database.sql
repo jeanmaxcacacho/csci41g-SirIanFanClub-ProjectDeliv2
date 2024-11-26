@@ -90,8 +90,6 @@ create table if not exists routes(
     train_id int not null,
     origin_id int not null,
     destination_id int not null,
-    price int not null,
-    duration time not null,
     foreign key (train_id) references train(train_id) on delete cascade,
     foreign key (origin_id) references station(station_id) on delete cascade,
     foreign key (destination_id) references station(station_id) on delete cascade
@@ -99,11 +97,15 @@ create table if not exists routes(
 
 create table if not exists local_route(
     route_id int primary key,
+    price int not null,
+    duration time not null,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
 
 create table if not exists intertown_route(
     route_id int primary key,
+    price int not null,
+    duration time not null,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
 

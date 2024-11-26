@@ -146,14 +146,14 @@ def admin():
         order by station_type
     """
     local_route_query = """
-        select lr.route_id, r.train_id, os.station_name, ds.station_name, r.price, r.duration
+        select lr.route_id, r.train_id, os.station_name, ds.station_name, lr.price, lr.duration
         from local_route lr
         join routes r on lr.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
     intertown_route_query = """
-        select ir.route_id, r.train_id, os.station_name, ds.station_name, r.price, r.duration
+        select ir.route_id, r.train_id, os.station_name, ds.station_name, ir.price, ir.duration
         from intertown_route ir
         join routes r on ir.route_id=r.route_id
         join station os on r.origin_id=os.station_id
@@ -418,22 +418,22 @@ def add_route(route_type):
             duration = '00:05:00'
 
         route_insertion_query = """
-            insert into routes(train_id, origin_id, destination_id, price, duration)
-            values (%s, %s, %s, %s, %s)
+            insert into routes(train_id, origin_id, destination_id)
+            values (%s, %s, %s)
         """
-        cursor.execute(route_insertion_query, (train_id, origin_id, destination_id, price, duration))
+        cursor.execute(route_insertion_query, (train_id, origin_id, destination_id))
 
         if route_type == 'local':
             route_subtype_insert = """
-                insert into local_route(route_id)
-                values (last_insert_id())
+                insert into local_route(route_id, price, duration)
+                values (last_insert_id(), %s, %s)
             """
         else:
             route_subtype_insert = """
-                insert into intertown_route(route_id)
-                values (last_insert_id())
+                insert into intertown_route(route_id, price, duration)
+                values (last_insert_id(), %s, %s)
             """
-        cursor.execute(route_subtype_insert)
+        cursor.execute(route_subtype_insert, (price, duration))
 
     conn.commit()
     cursor.close()
