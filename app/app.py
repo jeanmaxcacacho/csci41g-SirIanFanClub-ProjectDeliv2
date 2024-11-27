@@ -393,9 +393,9 @@ def add_route(route_type):
         return 'Cannot add route with no valid station instances'
     
     if request.method == 'POST':
-        origin_id = request.form.get('origin_id')
-        destination_id = request.form.get('destination_id')
-        price = request.form.get('price')
+        origin_id = int(request.form.get('origin_id'))
+        destination_id = int(request.form.get('destination_id'))
+        price = int(request.form.get('price'))
         hours = int(request.form.get('hours'))
         minutes = int(request.form.get('minutes'))
 
@@ -423,6 +423,10 @@ def add_route(route_type):
                 values (last_insert_id(), %s, %s)
             """
         cursor.execute(route_subtype_insert, (price, duration))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/admin')
 
     conn.commit()
     cursor.close()
@@ -453,7 +457,7 @@ def add_trip(trip_type):
         train_series = 'A'
         route_query = '''
             select ir.route_id, concat(os.station_name, ' to ', ds.station_name)
-            from intertwon_route ir
+            from intertown_route ir
             join routes r on ir.route_id=r.route_id
             join station os on r.origin_id=os.station_id
             join station ds on r.destination_id=ds.station_id
@@ -470,8 +474,66 @@ def add_trip(trip_type):
         return 'Cannot add trip without any valid train or route intances.'
 
     if request.method == 'POST':
-        return 'yeet'
+        train_id = int(request.form.get("train_id"))
+        departure_hour = int(request.form.get("departure_hour"))
+        departure_minute = int(request.form.get("departure_minute"))
+        route_id = int(request.form.get("route_id",))
+
+        if trip_type == 'local':
+            duration_query = '''
+                select local_duration
+                from local_route
+                where route_id = %s
+            '''
+        else:
+            duration_query = '''
+                select intertown_duration
+                from intertown_route
+                where route_id = %s
+            '''
+        cursor.execute(duration_query, (route_id,))
+        duration = cursor.fetchone()
+
+        departure_time = f"{departure_hour:02}:{departure_minute:02}:00"
+
+        duration_str = duration[0]  # Get the duration string
+        duration_hours, duration_minutes, duration_seconds = map(int, duration_str.split(':'))
+        
+        duration_in_minutes = (duration_hours*60) + duration_minutes
+        total_minutes = departure_minute + duration_in_minutes
+        arrival_minute = total_minutes % 60
+        arrival_hour = (departure_hour + (total_minutes // 60)) % 24
+
+        # Format the final arrival time
+        arrival_time = f"{arrival_hour:02}:{arrival_minute:02}:00"
+
+        trip_insertion_query = '''
+            insert into trip(train_id, departure_time, arrival_time)
+            values(%s, %s, %s)
+        '''
+        cursor.execute(trip_insertion_query, (train_id, departure_time, arrival_time))
+        
+        if trip_type == 'local':
+            trip_subtype_insert = '''
+                insert into local_trip(trip_id, route_id)
+                values (last_insert_id(), %s)
+            '''
+        else:
+            trip_subtype_insert = '''
+                insert into intertown_trip(trip_id, route_id)
+                values (last_insert_id(), %s)
+            '''
+        cursor.execute(trip_subtype_insert, (route_id))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/admin')
+
     
+    conn.commit()
+    cursor.close()
+    conn.close()
     return render_template('add_trip.html', trip_type=trip_type, trains=trains, routes=routes)
 """
 MISC. SETUP
