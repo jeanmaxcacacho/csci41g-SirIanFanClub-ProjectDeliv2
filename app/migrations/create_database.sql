@@ -103,8 +103,8 @@ create table if not exists local_route(
 
 create table if not exists intertown_route(
     route_id int primary key,
-    price int not null,
-    duration time not null,
+    intertown_price int not null,
+    intertown_duration time not null,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
 
@@ -140,7 +140,7 @@ create table if not exists ticket(
     foreign key (user_id) references passenger(user_id) on delete cascade
 );
 
--- associative entity representing a single trip on a ticket
+-- associative entity representing a single trip on a single ticket
 create table if not exists ticketitem(
     ticket_id int not null,
     trip_id int not null,

@@ -153,7 +153,7 @@ def admin():
         join station ds on r.destination_id=ds.station_id
     """
     intertown_route_query = """
-        select ir.route_id, os.station_name, ds.station_name, ir.price, ir.duration
+        select ir.route_id, os.station_name, ds.station_name, ir.intertown_price, ir.intertown_duration
         from intertown_route ir
         join routes r on ir.route_id=r.route_id
         join station os on r.origin_id=os.station_id
@@ -419,7 +419,7 @@ def add_route(route_type):
             """
         else:
             route_subtype_insert = """
-                insert into intertown_route(route_id, price, duration)
+                insert into intertown_route(route_id, intertown_price, intertown_duration)
                 values (last_insert_id(), %s, %s)
             """
         cursor.execute(route_subtype_insert, (price, duration))
@@ -429,6 +429,50 @@ def add_route(route_type):
     conn.close()
     return render_template('add_route.html', stations=stations, route_type=route_type)
 
+@app.route('/add_trip/<string: trip_type>', methods=['GET', 'POST'])
+def add_trip(trip_type):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    train_query = '''
+        select train_id
+        from train
+        where train_series = %s
+    '''
+
+    if trip_type == 'local':
+        train_series = 'S'
+        route_query = '''
+            select lr.route_id, concat(os.station_name, ' - ', ds.station_name)
+            from local_route lr
+            join routes r on lr.route_id=r.route_id
+            join station os on r.origin_id=os.station_id
+            join station ds on r.destination_id=ds.station_id
+        '''
+    else:
+        train_series = 'A'
+        route_query = '''
+            select ir.route_id, concat(os.station_name, ' to ', ds.station_name)
+            from intertwon_route ir
+            join routes r on ir.route_id=r.route_id
+            join station os on r.origin_id=os.station_id
+            join station ds on r.destination_id=ds.station_id
+        '''
+
+    cursor.execute(train_query, (train_series, ))
+    trains = cursor.fetchall()
+    cursor.execute(route_query)
+    routes = cursor.fetchall()
+
+    if not trains or not routes:
+        cursor.close()
+        conn.close()
+        return 'Cannot add trip without any valid train or route intances.'
+
+    if request.method == 'POST':
+        return 'yeet'
+    
+    return render_template('add_trip.html', trip_type=trip_type, trains=trains, routes=routes)
 """
 MISC. SETUP
 """

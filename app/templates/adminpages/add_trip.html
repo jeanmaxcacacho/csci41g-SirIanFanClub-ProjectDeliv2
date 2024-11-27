@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Add a {{ trip_type }} trip.</h1>
+
+    <form action="{{ url_for('add_trip', trip_type=trip_type) }}" method="post">
+
+        <label for="train_id">Choose Train: </label>
+        <select name="train_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for train in trains %}
+                <option value="{{ train[0] }}">{{ train[0] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="departure_hour">Departure Hour: </label>
+        <input type="number" name="departure_hour" min="0" max="23">
+
+        <label for="departure_minute">Departure Minute: </label>
+        <input type="number" name="departure_minute" min="0" max="59">
+        <br></br>
+
+        <label for="arrival_hour">Arrival Hour: </label>
+        <input type="number" name="arrival_hour" min="0" max="23">
+
+        <label for="arrival_minute">Arrival Minute: </label>
+        <input type="number" name="arrival_minute" min="0" max="59">
+        <br></br>
+
+        <label for="route_id">Choose Route: </label>
+        <select name="route_id" required>
+            <option value="" disabled selected>Select</option>
+            {% for route in routes %}
+                <option value="{{ route[0] }}">{{ route[1] }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+    </form>
+{% endblock %}

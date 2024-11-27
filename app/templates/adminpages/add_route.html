@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <h1>Add a route.</h1>
+    <h1>Add a {{ route_type }} route.</h1>
 
     <form action="{{ url_for('add_route', route_type=route_type) }}" method="post">
 
