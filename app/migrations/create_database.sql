@@ -89,7 +89,6 @@ create table if not exists routes(
     route_id int not null auto_increment unique primary key,
     origin_id int not null,
     destination_id int not null,
-    foreign key (train_id) references train(train_id) on delete cascade,
     foreign key (origin_id) references station(station_id) on delete cascade,
     foreign key (destination_id) references station(station_id) on delete cascade
 );
@@ -118,15 +117,17 @@ create table if not exists trip(
 );
 
 create table if not exists local_trip(
-    trip_id int not null primary key,
+    trip_id int not null,
     route_id int not null,
+    primary key (trip_id),
     foreign key (trip_id) references trip(trip_id) on delete cascade,
     foreign key (route_id) references local_route(route_id) on delete cascade
 );
 
 create table if not exists intertown_trip(
-    trip_id int not null primary key,
+    trip_id int not null,
     route_id int not null,
+    primary key (trip_id),
     foreign key (trip_id) references trip(trip_id) on delete cascade,
     foreign key (route_id) references intertown_route(route_id) on delete cascade
 );
@@ -144,7 +145,7 @@ create table if not exists ticket(
 create table if not exists ticketitem(
     ticket_id int not null,
     trip_id int not null,
-    primary key (ticket_id, trip_id)
+    primary key (ticket_id, trip_id),
     foreign key (ticket_id) references ticket(ticket_id) on delete cascade,
     foreign key (trip_id) references trip(trip_id) on delete cascade
 );

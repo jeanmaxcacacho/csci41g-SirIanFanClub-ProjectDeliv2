@@ -51,7 +51,7 @@
     
     <hr>
     <h3>All Stations</h3>
-    <a href="/addstation">Add Station</a>
+    <a href="/add_station">Add Station</a>
 
     {% if stations %}
         <h4>Stations in the Database</h4>
@@ -128,4 +128,67 @@
     {% else %}
         <h4>There are no local routes recorded yet in the database.</h4>
     {% endif %}
+    
+    <hr>
+    <h3>All Local Trips</h3>
+    <a href="{{ url_for('add_trip', trip_type='local') }}">Add Local Route</a>
+    {% if local_trips %}
+        <h4>Local Trips in the Database</h4>
+        <table border="2">
+            <tr>
+                <th>Train No.</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Duration (hours, minutes)</th>
+                <th>Price (in gold coins)</th>
+            </tr>
+            {% for local_trip in local_trips %}
+                <tr align="center">
+                    <td>{{ local_trip[0] }}</td>
+                    <td>{{ local_trip[1] }}</td>
+                    <td>{{ local_trip[2] }}</td>
+                    <td>{{ local_trip[3] }}</td>
+                    <td>{{ local_trip[4] }}</td>
+                    <td>{{ local_trip[5] }}</td>
+                    <td>{{ local_trip[6] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no local trips recorded yet in the database.</h4>
+    {% endif %}
+
+    <hr>
+    <h3>All Inter-town Trips</h3>
+    <a href="{{ url_for('add_trip', trip_type='intertown') }}">Add Inter-town Route</a>
+    {% if intertown_trips %}
+        <h4>Inter-town Trips in the Database</h4>
+        <table border="2">
+            <tr>
+                <th>Train No.</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Duration (hours, minutes)</th>
+                <th>Price (in gold coins)</th>
+            </tr>
+            {% for intertown_trip in intertown_trips %}
+                <tr align="center">
+                    <td>{{ intertown_trip[0] }}</td>
+                    <td>{{ intertown_trip[1] }}</td>
+                    <td>{{ intertown_trip[2] }}</td>
+                    <td>{{ intertown_trip[3] }}</td>
+                    <td>{{ intertown_trip[4] }}</td>
+                    <td>{{ intertown_trip[5] }}</td>
+                    <td>{{ intertown_trip[6] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no inter-town trips recorded yet in the database.</h4>
+    {% endif %}
+
 {% endblock %}

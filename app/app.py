@@ -159,6 +159,24 @@ def admin():
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
+    local_trip_query = """
+        select t.train_id, os.station_name, ds.station_name, t.departure_time, t.arrival_time, lr.local_duration, lr.local_price
+        from local_trip lt
+        join trip t on lt.trip_id=t.trip_id
+        join local_route lr on lt.route_id=lr.route_id
+        join routes r on lr.route_id=r.route_id
+        join station os on r.origin_id=os.station_id
+        join station ds on r.destination_id=ds.station_id
+    """
+    intertown_trip_query = """
+        select t.train_id, os.station_name, ds.station_name, t.departure_time, t.arrival_time, ir.intertown_duration, ir.intertown_price
+        from intertown_trip it
+        join trip t on it.trip_id=t.trip_id
+        join intertown_route ir on it.route_id=ir.route_id
+        join routes r on ir.route_id=r.route_id
+        join station os on r.origin_id=os.station_id
+        join station ds on r.destination_id=ds.station_id
+    """
     cursor.execute(trains_query)
     trains = cursor.fetchall()
     cursor.execute(crew_query)
@@ -169,13 +187,19 @@ def admin():
     local_routes = cursor.fetchall()
     cursor.execute(intertown_route_query)
     intertown_routes = cursor.fetchall()
+    cursor.execute(local_trip_query)
+    local_trips = cursor.fetchall()
+    cursor.execute(intertown_trip_query)
+    intertown_trips=cursor.fetchall()
 
     return render_template("adminpages/admin.html",
                            trains=trains,
                            crews=crews,
                            stations=stations,
                            local_routes=local_routes,
-                           intertown_routes=intertown_routes)
+                           intertown_routes=intertown_routes,
+                           local_trips=local_trips,
+                           intertown_trips=intertown_trips)
 
 # this route will bring the user to the train_detail page; will have a link to `/addmaintenance`
 @app.route('/admin/train/<int:train_id>', methods=['GET', 'POST'])
@@ -357,7 +381,7 @@ def add_station():
         station_name = request.form.get('station_name')
         station_type = request.form.get('station_type')
 
-        conn = get_db_connection
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         station_insertion_query = """
@@ -431,37 +455,37 @@ def add_route(route_type):
     conn.commit()
     cursor.close()
     conn.close()
-    return render_template('add_route.html', stations=stations, route_type=route_type)
+    return render_template('adminpages/add_route.html', stations=stations, route_type=route_type)
 
-@app.route('/add_trip/<string: trip_type>', methods=['GET', 'POST'])
+@app.route('/add_trip/<string:trip_type>', methods=['GET', 'POST'])
 def add_trip(trip_type):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    train_query = '''
+    train_query = """
         select train_id
         from train
         where train_series = %s
-    '''
+    """
 
     if trip_type == 'local':
         train_series = 'S'
-        route_query = '''
+        route_query = """
             select lr.route_id, concat(os.station_name, ' - ', ds.station_name)
             from local_route lr
             join routes r on lr.route_id=r.route_id
             join station os on r.origin_id=os.station_id
             join station ds on r.destination_id=ds.station_id
-        '''
+        """
     else:
         train_series = 'A'
-        route_query = '''
+        route_query = """
             select ir.route_id, concat(os.station_name, ' to ', ds.station_name)
             from intertown_route ir
             join routes r on ir.route_id=r.route_id
             join station os on r.origin_id=os.station_id
             join station ds on r.destination_id=ds.station_id
-        '''
+        """
 
     cursor.execute(train_query, (train_series, ))
     trains = cursor.fetchall()
@@ -480,17 +504,17 @@ def add_trip(trip_type):
         route_id = int(request.form.get("route_id",))
 
         if trip_type == 'local':
-            duration_query = '''
+            duration_query = """
                 select local_duration
                 from local_route
                 where route_id = %s
-            '''
+            """
         else:
-            duration_query = '''
+            duration_query = """
                 select intertown_duration
                 from intertown_route
                 where route_id = %s
-            '''
+            """
         cursor.execute(duration_query, (route_id,))
         duration = cursor.fetchone()
 
@@ -507,23 +531,23 @@ def add_trip(trip_type):
         # Format the final arrival time
         arrival_time = f"{arrival_hour:02}:{arrival_minute:02}:00"
 
-        trip_insertion_query = '''
+        trip_insertion_query = """
             insert into trip(train_id, departure_time, arrival_time)
             values(%s, %s, %s)
-        '''
+        """
         cursor.execute(trip_insertion_query, (train_id, departure_time, arrival_time))
         
         if trip_type == 'local':
-            trip_subtype_insert = '''
+            trip_subtype_insert = """
                 insert into local_trip(trip_id, route_id)
                 values (last_insert_id(), %s)
-            '''
+            """
         else:
-            trip_subtype_insert = '''
+            trip_subtype_insert = """
                 insert into intertown_trip(trip_id, route_id)
                 values (last_insert_id(), %s)
-            '''
-        cursor.execute(trip_subtype_insert, (route_id))
+            """
+        cursor.execute(trip_subtype_insert, (route_id,))
         
         conn.commit()
         cursor.close()
@@ -534,7 +558,7 @@ def add_trip(trip_type):
     conn.commit()
     cursor.close()
     conn.close()
-    return render_template('add_trip.html', trip_type=trip_type, trains=trains, routes=routes)
+    return render_template('adminpages/add_trip.html', trip_type=trip_type, trains=trains, routes=routes)
 """
 MISC. SETUP
 """
