@@ -87,7 +87,6 @@ create table if not exists station(
 
 create table if not exists routes(
     route_id int not null auto_increment unique primary key,
-    train_id int not null,
     origin_id int not null,
     destination_id int not null,
     foreign key (train_id) references train(train_id) on delete cascade,
@@ -97,8 +96,8 @@ create table if not exists routes(
 
 create table if not exists local_route(
     route_id int primary key,
-    price int not null,
-    duration time not null,
+    local_price int not null,
+    local_duration time not null,
     foreign key (route_id) references routes(route_id) on delete cascade
 );
 
@@ -113,7 +112,6 @@ create table if not exists intertown_route(
 create table if not exists trip(
      trip_id int not null auto_increment unique primary key,
      train_id int not null,
-     departure_date date not null,
      departure_time time not null,
      arrival_time time not null,
      foreign key (train_id) references train(train_id) on delete cascade
@@ -135,18 +133,18 @@ create table if not exists intertown_trip(
 
 create table if not exists ticket(
     ticket_id int not null auto_increment unique primary key,
-    customer_id int not null,
+    user_id int not null,
     travel_date date not null,
     total_cost int not null,
     purchase_date timestamp default current_timestamp,
-    foreign key (customer_id) references customer(customer_id) on delete cascade
+    foreign key (user_id) references passenger(user_id) on delete cascade
 );
 
-create table if not exists customer(
-    customer_id int not null auto_increment unique primary key,
-    lname varchar(255) not null,
-    fname varchar(255) not null,
-    middle_initial varchar(5) not null,
-    birth_date date not null,
-    gender ENUM('M', 'F') default null
+-- associative entity representing a single trip on a ticket
+create table if not exists ticketitem(
+    ticket_id int not null,
+    trip_id int not null,
+    primary key (ticket_id, trip_id)
+    foreign key (ticket_id) references ticket(ticket_id) on delete cascade,
+    foreign key (trip_id) references trip(trip_id) on delete cascade
 );
