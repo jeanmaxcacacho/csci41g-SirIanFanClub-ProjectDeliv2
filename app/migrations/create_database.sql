@@ -82,10 +82,10 @@ create table if not exists maintenance(
 create table if not exists station(
     station_id int not null auto_increment unique primary key,
     station_name varchar(255) not null,
-    station_type ENUM('local', 'inter-town') not null
+    station_type ENUM('local', 'inter-town', 'interchange') not null
 );
 
-create table if not exists routes(
+create table if not exists route(
     route_id int not null auto_increment unique primary key,
     origin_id int not null,
     destination_id int not null,
@@ -93,18 +93,19 @@ create table if not exists routes(
     foreign key (destination_id) references station(station_id) on delete cascade
 );
 
+-- set default values since these are local
 create table if not exists local_route(
     route_id int primary key,
-    local_price int not null,
-    local_duration time not null,
-    foreign key (route_id) references routes(route_id) on delete cascade
+    local_price int not null default 2,
+    local_duration time not null default '00:05:00',
+    foreign key (route_id) references route(route_id) on delete cascade
 );
 
 create table if not exists intertown_route(
     route_id int primary key,
     intertown_price int not null,
     intertown_duration time not null,
-    foreign key (route_id) references routes(route_id) on delete cascade
+    foreign key (route_id) references route(route_id) on delete cascade
 );
 
 -- SCHEDULING AND SALES
