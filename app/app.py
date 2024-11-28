@@ -148,14 +148,14 @@ def admin():
     local_route_query = """
         select lr.route_id, os.station_name, ds.station_name,  lr.local_duration, lr.local_price
         from local_route lr
-        join routes r on lr.route_id=r.route_id
+        join route r on lr.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
     intertown_route_query = """
         select ir.route_id, os.station_name, ds.station_name, ir.intertown_duration, ir.intertown_price
         from intertown_route ir
-        join routes r on ir.route_id=r.route_id
+        join route r on ir.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
@@ -164,7 +164,7 @@ def admin():
         from local_trip lt
         join trip t on lt.trip_id=t.trip_id
         join local_route lr on lt.route_id=lr.route_id
-        join routes r on lr.route_id=r.route_id
+        join route r on lr.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
@@ -173,7 +173,7 @@ def admin():
         from intertown_trip it
         join trip t on it.trip_id=t.trip_id
         join intertown_route ir on it.route_id=ir.route_id
-        join routes r on ir.route_id=r.route_id
+        join route r on ir.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
@@ -431,7 +431,7 @@ def add_route(route_type):
             duration = '00:05:00'
 
         route_insertion_query = """
-            insert into routes(origin_id, destination_id)
+            insert into route(origin_id, destination_id)
             values (%s, %s)
         """
         cursor.execute(route_insertion_query, (origin_id, destination_id))
@@ -473,7 +473,7 @@ def add_trip(trip_type):
         route_query = """
             select lr.route_id, concat(os.station_name, ' - ', ds.station_name)
             from local_route lr
-            join routes r on lr.route_id=r.route_id
+            join route r on lr.route_id=r.route_id
             join station os on r.origin_id=os.station_id
             join station ds on r.destination_id=ds.station_id
         """
@@ -482,7 +482,7 @@ def add_trip(trip_type):
         route_query = """
             select ir.route_id, concat(os.station_name, ' to ', ds.station_name)
             from intertown_route ir
-            join routes r on ir.route_id=r.route_id
+            join route r on ir.route_id=r.route_id
             join station os on r.origin_id=os.station_id
             join station ds on r.destination_id=ds.station_id
         """

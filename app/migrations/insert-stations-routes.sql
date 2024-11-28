@@ -109,6 +109,27 @@ values
     (select station_id from station where station_name = "The Stone Tablet")
 );
 
+
+insert into route (origin_id, destination_id)
+values
+(
+    (select station_id from station where station_name = "Beaver's Dam"),
+    (select station_id from station where station_name = "Allies' Enclave")
+),
+(
+    (select station_id from station where station_name = "Allies' Enclave"),
+    (select station_id from station where station_name = "The Wardrobe")
+),
+(
+    (select station_id from station where station_name = "The Wardrobe"),
+    (select station_id from station where station_name = "The Lamp Post")
+),
+(
+    (select station_id from station where station_name = "The Lamp Post"),
+    (select station_id from station where station_name = "Beaver's Dam")
+);
+
+
 insert into local_route(route_id)
 select r.route_id from route r
 join station os on r.origin_id = os.station_id
