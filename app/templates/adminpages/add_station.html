@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Add a station.</h1>
+
+    <form action="/add_station" method="post">
+        <label for="station_name">Station Name: </label>
+        <input type="text" name="station_name" required>
+        <br><br>
+
+        <label for="station_type">Station Type: </label>
+        <select name="station_type" required>
+            <option value="" disabled selected>Select</option>
+            <option value="local">Local</option>
+            <option value="inter-town">Inter-town</option>
+        </select>
+        <br><br>
+
+        <button type="submit">Add Station</button>
+    </form>
+{% endblock %}
