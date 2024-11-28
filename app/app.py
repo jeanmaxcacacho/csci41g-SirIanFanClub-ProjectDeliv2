@@ -146,14 +146,14 @@ def admin():
         order by station_type
     """
     local_route_query = """
-        select lr.route_id, os.station_name, ds.station_name, lr.local_price, lr.local_duration
+        select lr.route_id, os.station_name, ds.station_name,  lr.local_duration, lr.local_price
         from local_route lr
         join routes r on lr.route_id=r.route_id
         join station os on r.origin_id=os.station_id
         join station ds on r.destination_id=ds.station_id
     """
     intertown_route_query = """
-        select ir.route_id, os.station_name, ds.station_name, ir.intertown_price, ir.intertown_duration
+        select ir.route_id, os.station_name, ds.station_name, ir.intertown_duration, ir.intertown_price
         from intertown_route ir
         join routes r on ir.route_id=r.route_id
         join station os on r.origin_id=os.station_id
@@ -518,18 +518,25 @@ def add_trip(trip_type):
         cursor.execute(duration_query, (route_id,))
         duration = cursor.fetchone()
 
-        departure_time = f"{departure_hour:02}:{departure_minute:02}:00"
+        # Retrieve duration as timedelta
+        duration_delta = duration[0]  # duration[0] is already a timedelta object
 
-        duration_str = duration[0]  # Get the duration string
-        duration_hours, duration_minutes, duration_seconds = map(int, duration_str.split(':'))
-        
-        duration_in_minutes = (duration_hours*60) + duration_minutes
-        total_minutes = departure_minute + duration_in_minutes
-        arrival_minute = total_minutes % 60
-        arrival_hour = (departure_hour + (total_minutes // 60)) % 24
+        # Create a datetime object for departure time
+        departure_time = datetime.strptime(f"{departure_hour:02}:{departure_minute:02}:00", '%H:%M:%S')
 
-        # Format the final arrival time
-        arrival_time = f"{arrival_hour:02}:{arrival_minute:02}:00"
+        # Calculate arrival time by adding the duration
+        arrival_time = departure_time + duration_delta
+
+        # Format the times for database insertion
+        departure_time_str = departure_time.strftime('%H:%M:%S')
+        arrival_time_str = arrival_time.strftime('%H:%M:%S')
+
+        # Insert into the trip table
+        trip_insertion_query = """
+            insert into trip(train_id, departure_time, arrival_time)
+            values(%s, %s, %s)
+        """
+        cursor.execute(trip_insertion_query, (train_id, departure_time_str, arrival_time_str))
 
         trip_insertion_query = """
             insert into trip(train_id, departure_time, arrival_time)
