@@ -44,6 +44,7 @@ create table if not exists admin(
 
 -- TRAINS AND MAINTENANCE
 
+-- have train_model be dynamically generated via concat(train_series, '-', lpad(train_id, 3, '0'))
 create table if not exists train(
     train_id int not null auto_increment unique primary key,
     train_series ENUM('S', 'A') not null,
