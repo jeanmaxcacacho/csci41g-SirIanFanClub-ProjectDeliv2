@@ -62,15 +62,15 @@ if __name__ == '__main__':
             arrival_time = (current_departure_time + local_duration).time()
 
             cursor.execute("""
-                INSERT INTO trip (train_id, departure_time, arrival_time)
-                VALUES (%s, %s, %s)
+                insert into trip (train_id, departure_time, arrival_time)
+                values (%s, %s, %s)
             """, (train_id, current_departure_time.time(), arrival_time))
 
             trip_id = cursor.lastrowid
 
             cursor.execute("""
-                INSERT INTO local_trip (trip_id, route_id)
-                VALUES (%s, %s)
+                insert into local_trip (trip_id, route_id)
+                values (%s, %s)
             """, (trip_id, route_id))
 
             print(f"Assigned Train {train_id} to Route {route_id} from {origin_id} to {destination_id} "
