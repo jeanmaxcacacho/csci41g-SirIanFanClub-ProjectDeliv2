@@ -9,6 +9,14 @@ if __name__ == '__main__':
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    local_train_query = """
+        select tr.train_id
+        from train tr
+        where tr.train_series = 'S'
+    """
+    cursor.execute(local_train_query)
+    local_trains = cursor.fetchall()
+
     local_route_query = """
         select lr.route_id, r.origin_id, r.destination_id, lr.local_duration
         from local_route lr
@@ -17,177 +25,58 @@ if __name__ == '__main__':
     cursor.execute(local_route_query)
     local_routes = cursor.fetchall()
 
-    # intertown_route_query = """
-    #     select route_id, intertown_duration from intertown_route
-    # """
-    # cursor.execute(intertown_route_query)
-    # intertown_routes = cursor.fetchall()
+    # I adjusted the order of how things are in inserted s.t.
+    # train_id and route_ids have 1 to 1 correspondence
+    train_ids = [x[0] for x in local_trains]
+    route_ids = [x[0] for x in local_routes]
 
-    local_train_query = """
-        select train_id
-        from train
-        where train_series = 'S'
+    """ READ IN WALFRIDO DAVID DIY'S VOICE
+        per each iteration of insertion we want to DECREMENT the the train assigned to each route
+        each iteration will have four insertions
+
+        1st iteration || r0: t0, r1: t1, r2: t2, r3:t3
+        2nd iteration || r0: t3, r1: t0, r2: t1, r3:t2
+
+        once the iterator hits 0 BAAAM, reset back to 3; there will never be overlaps because of 1:1 ratio
+        between local trains and routes, at any given point in time a single train must only be assigned to
+        a single route and vice-versa
+
+        one important thing to note also is that the actual mathematical index and the `id` attribute
+        are off by one, so just do keep that in mind
+
+        for demonstrative purposes let's only produce rows from 10:00 AM - 15:00 PM
     """
-    cursor.execute(local_train_query)
-    local_trains = [train[0] for train in cursor.fetchall()]
 
-    # intertown_train_query = """
-    #     select train_id
-    #     from train
-    #     where train_series = 'A'
-    # """
-    # cursor.execute(intertown_train_query)
-    # intertown_trains = cursor.fetchall()
-
-    # operational hours
-    base_departure_time = datetime.strptime("06:00:00", "%H:%M:%S")
-    end_time = datetime.strptime("22:00:00", "%H:%M:%S")
-    local_departure_interval = 10
-    # intertown_departure_interval = 30
-
-    # initialize cyclic train assignments for local trips
-    station_count = 4
-    train_positions = {train_id:i for i, train_id in enumerate(local_trains)} # assign each train an index
-    train_queue = local_trains[:]
-
-    # # local_trip insertion
-    # for route_index, (train, route) in enumerate(zip(local_trains, local_routes)):
-    #     train_id = train[0]
-    #     route_id, local_duration = route
-    #     current_departure_time = base_departure_time
-
-    #     while current_departure_time <= end_time:
-    #         arrival_time = (current_departure_time + local_duration).time()
-
-    #         cursor.execute("""
-    #             insert into trip(train_id, departure_time, arrival_time)
-    #                        values (%s, %s, %s)
-    #                        """,
-    #                        (train_id, current_departure_time.time(), arrival_time))
-            
-    #         trip_id = cursor.lastrowid
-
-    #         cursor.execute("""
-    #             insert into local_trip(trip_id, route_id)
-    #             values (%s, %s)
-    #                        """,
-    #                        (trip_id, route_id))
-            
-    #         current_departure_time += timedelta(minutes=local_departure_interval)
-
-    # current_departure_time = base_departure_time
-    # while current_departure_time <= end_time:
-    #     for route_id, origin_id, destination_id, local_duration in local_routes:
-    #         assigned_train = None
-    #         for _ in range(len(train_queue)):
-    #             train_id = train_queue.pop(0)
-    #             if train_positions[train_id] == origin_id:
-    #                 assigned_train = train_id
-    #                 break
-    #             train_queue.append(train_id)
-    #         if not assigned_train:
-    #             print(f"Warning: No train available at station {origin_id}. Skipping this trip.")
-    #             continue
-    #         arrival_time = (current_departure_time + local_duration).time()
-
-    #         print(f"Assigning Train {assigned_train} to Route {route_id} "
-    #               f"from Station {origin_id} to Station {destination_id} "
-    #               f"departing at {current_departure_time.time()} and arriving at {arrival_time}")
-            
-    #         cursor.execute("""
-    #             insert into trip(train_id, departure_time, arrival_time)
-    #             values (%s, %s, %s)
-    #                        """,
-    #                        (assigned_train, current_departure_time.time(), arrival_time))
-    #         trip_id = cursor.lastrowid
-
-    #         cursor.execute("""
-    #             insert into local_trip(trip_id, route_id)
-    #             values (%s, %s)
-    #                        """,
-    #                        (trip_id, route_id))
-            
-    #         train_positions[assigned_train] = destination_id
-    #         train_queue.append(assigned_train)
-    #     current_departure_time += timedelta(minutes=local_departure_interval)
-    #     print(f"Train positions after {current_departure_time.time()}: {train_positions}")
-
-    # Local trip insertion
+    base_departure_time = datetime.strptime("10:00:00", "%H:%M:%S")
+    end_time = datetime.strptime("15:00:00",  "%H:%M:%S")
+    local_departure_interval = 10 # 10 minute intervals per trip
     current_departure_time = base_departure_time
+
+    train_index = len(train_ids) - 1
+
     while current_departure_time <= end_time:
-        for route_id, origin_id, destination_id, local_duration in local_routes:
-            assigned_train = None
+        for route_index, route in enumerate(local_routes):
+            train_id = train_ids[(train_index + route_index) % len(train_ids)]
 
-            # Rotate through the train queue for assignment
-            for _ in range(len(train_queue)):
-                train_id = train_queue.pop(0)  # Get the first train from the queue
-                if train_positions[train_id] == origin_id:  # Check if the train is at the origin station
-                    assigned_train = train_id
-                    break
-                train_queue.append(train_id)  # Rotate the train back into the queue
-
-            # Check if a train was assigned
-            if not assigned_train:
-                print(f"Warning: No train available at station {origin_id}. Skipping this trip.")
-                continue
-
-            # Calculate arrival time
+            route_id, origin_id, destination_id, local_duration = route
             arrival_time = (current_departure_time + local_duration).time()
 
-            # Log assignment (for debugging)
-            print(f"Assigning Train {assigned_train} to Route {route_id} "
-                  f"from Station {origin_id} to Station {destination_id} "
-                  f"departing at {current_departure_time.time()} and arriving at {arrival_time}")
-
-            # Insert trip into `trip` table
             cursor.execute("""
                 INSERT INTO trip (train_id, departure_time, arrival_time)
                 VALUES (%s, %s, %s)
-            """, (assigned_train, current_departure_time.time(), arrival_time))
+            """, (train_id, current_departure_time.time(), arrival_time))
+
             trip_id = cursor.lastrowid
 
-            # Insert trip into `local_trip` table
             cursor.execute("""
                 INSERT INTO local_trip (trip_id, route_id)
                 VALUES (%s, %s)
             """, (trip_id, route_id))
 
-            # Update train position
-            train_positions[assigned_train] = destination_id
-
-            # Move the assigned train to the back of the queue
-            train_queue.append(assigned_train)
-
-        # Increment departure time
+            print(f"Assigned Train {train_id} to Route {route_id} from {origin_id} to {destination_id} "
+                  f"departing at {current_departure_time.time()} and arriving at {arrival_time}")
+        train_index = (train_index - 1) % len(train_ids)
         current_departure_time += timedelta(minutes=local_departure_interval)
-
-        # Log train positions after each departure cycle (for debugging)
-        print(f"Train positions after {current_departure_time.time()}: {train_positions}")
-
-
-    # for route_index, (train, route) in enumerate(zip(intertown_trains, intertown_routes)):
-    #     train_id  = train[0]
-    #     route_id, intertown_duration = route
-    #     current_departure_time = base_departure_time
-
-    #     while current_departure_time <= end_time:
-    #         arrival_time = (current_departure_time + intertown_duration).time()
-            
-    #         cursor.execute("""
-    #             insert into trip(train_id, departure_time, arrival_time)
-    #             values (%s, %s, %s)
-    #                        """,
-    #                        (train_id, current_departure_time.time(), arrival_time))
-            
-    #         trip_id = cursor.lastrowid
-
-    #         cursor.execute("""
-    #             insert into intertown_trip(trip_id, route_id)
-    #             values (%s, %s)
-    #                        """,
-    #                        (trip_id, route_id))
-    #         current_departure_time += timedelta(minutes=intertown_departure_interval)
-
     conn.commit()
     cursor.close()
     conn.close()

@@ -4,6 +4,9 @@
 *.pyd
 __pycache__/
 
+# misc. stuff
+dump/
+
 # Virtual environment
 venv/
 env/

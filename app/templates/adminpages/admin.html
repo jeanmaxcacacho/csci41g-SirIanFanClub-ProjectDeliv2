@@ -51,7 +51,7 @@
     
     <hr>
     <h3>All Stations</h3>
-    <a href="/add_station">Add Station</a>
+    {# <a href="/add_station">Add Station</a> #}
 
     {% if stations %}
         <h4>Stations in the Database</h4>
@@ -75,7 +75,7 @@
     
     <hr>
     <h3>All Local Routes</h3>
-    <a href="{{ url_for('add_route', route_type='local') }}">Add Local Route</a>
+    {# <a href="{{ url_for('add_route', route_type='local') }}">Add Local Route</a> #}
     
     {% if local_routes %}
         <h4>Local Routes in the Database</h4>
@@ -103,7 +103,7 @@
     
     <hr>
     <h3>All Inter-town Routes</h3>
-    <a href="{{ url_for('add_route', route_type='inter-town') }}">Add Inter-town Route</a>
+    {# <a href="{{ url_for('add_route', route_type='inter-town') }}">Add Inter-town Route</a> #}
 
     {% if intertown_routes %}
         <h4>Inter-town Routes in the Database</h4>

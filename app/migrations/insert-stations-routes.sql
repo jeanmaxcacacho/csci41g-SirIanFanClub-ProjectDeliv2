@@ -2,6 +2,7 @@
 -- to the inter-town station network so allies' enclave is
 -- technically both a local and a
 
+-- stations
 insert into station(station_name, station_type)
 values
 ("Allies' Enclave", 'interchange'),
@@ -18,6 +19,29 @@ values
 ("The Stone Tablet", 'inter-town'),
 ("Witch's Camp", 'inter-town');
 
+
+-- local routes
+insert into route (origin_id, destination_id)
+values
+(
+    (select station_id from station where station_name = "Beaver's Dam"),
+    (select station_id from station where station_name = "Allies' Enclave")
+),
+(
+    (select station_id from station where station_name = "Allies' Enclave"),
+    (select station_id from station where station_name = "The Wardrobe")
+),
+(
+    (select station_id from station where station_name = "The Wardrobe"),
+    (select station_id from station where station_name = "The Lamp Post")
+),
+(
+    (select station_id from station where station_name = "The Lamp Post"),
+    (select station_id from station where station_name = "Beaver's Dam")
+);
+
+
+-- intertown routes
 insert into route(origin_id, destination_id)
 values
 (
@@ -110,32 +134,13 @@ values
 );
 
 
-insert into route (origin_id, destination_id)
-values
-(
-    (select station_id from station where station_name = "Beaver's Dam"),
-    (select station_id from station where station_name = "Allies' Enclave")
-),
-(
-    (select station_id from station where station_name = "Allies' Enclave"),
-    (select station_id from station where station_name = "The Wardrobe")
-),
-(
-    (select station_id from station where station_name = "The Wardrobe"),
-    (select station_id from station where station_name = "The Lamp Post")
-),
-(
-    (select station_id from station where station_name = "The Lamp Post"),
-    (select station_id from station where station_name = "Beaver's Dam")
-);
-
-
 insert into local_route(route_id)
 select r.route_id from route r
 join station os on r.origin_id = os.station_id
 join station ds on r.destination_id = ds.station_id
 where os.station_type in ('local', 'interchange')
 and ds.station_type in ('local', 'interchange');
+
 
 insert into intertown_route(route_id, intertown_price, intertown_duration)
 select
