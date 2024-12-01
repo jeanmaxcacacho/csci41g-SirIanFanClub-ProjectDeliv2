@@ -34,6 +34,7 @@ create table if not exists user(
 
 create table if not exists passenger(
     user_id int primary key,
+    lion_coins int not null default 1000,
     foreign key (user_id) references user(user_id) on delete cascade
 );
 
@@ -139,7 +140,7 @@ create table if not exists ticket(
     user_id int not null,
     travel_date date not null,
     total_cost int not null,
-    purchase_date timestamp default current_timestamp,
+    purchase_date date not null default current_date,
     foreign key (user_id) references passenger(user_id) on delete cascade
 );
 

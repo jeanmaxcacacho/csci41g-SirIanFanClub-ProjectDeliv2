@@ -374,6 +374,134 @@ def add_crew():
     return render_template('adminpages/add_crew.html')
 
 """
+PASSENGER PAGES
+"""
+
+# present all possible trips then create tickets and ticketitems as dictated by what's purchased
+# also display relevant passenger info i.e. amt of Lion Coins they have
+@app.route('/passenger')
+def passenger():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    customer_query = """
+        select concat(u.fname, ' ', u.middle_initial, ' ', u.lname),
+               p.lion_coins,
+               u.created_at
+        from passenger p
+        join user u on p.user_id = u.user_id
+        where p.user_id = %s
+    """
+    cursor.execute(customer_query, (session.get('user_id'), ))
+    user = cursor.fetchone()
+
+    local_route_query = """
+        select lr.route_id, os.station_name, ds.station_name,  lr.local_duration, lr.local_price
+        from local_route lr
+        join route r on lr.route_id=r.route_id
+        join station os on r.origin_id=os.station_id
+        join station ds on r.destination_id=ds.station_id
+    """
+    cursor.execute(local_route_query)
+    local_routes = cursor.fetchall()
+
+    # display all `ticket`s purchased by the user, these will have their own
+    # detail pages displaying all the `ticketitem`s associated per `ticket`
+    ticket_query = """
+        select t.ticket_id, t.travel_date, t.total_cost, t.purchase_date
+        from ticket t
+        where t.user_id = %s
+    """
+    cursor.execute(ticket_query, (session.get('user_id'), ))
+    tickets = cursor.fetchall()
+
+    return render_template('passengerpages/passenger.html',
+                           user=user,
+                           local_routes=local_routes,
+                           tickets = tickets)
+
+# form sequence to instantiate the base ticketitem of a ticket
+@app.route('/passenger/buyticket1', methods=['GET'])
+def buyticket1():
+    session['travel_date'] = request.args.get('travel_date')
+    session['departure_time'] = request.args.get('departure_time')
+
+    if session['travel_date'] and session['departure_time']:
+        print(session['travel_date'])
+        print(session['departure_time'])
+        return redirect(url_for('buyticket2'))
+    return render_template('passengerpages/buy_ticket1.html')
+
+@app.route('/passenger/buyticket2/', methods=['GET', 'POST'])
+def buyticket2():
+    travel_date = session.get('travel_date')
+    departure_time = session.get('departure_time')
+
+    print(departure_time)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    trip_query = """
+        select t.trip_id, r.route_id, os.station_name, ds.station_name, lr.local_price
+        from local_trip lt
+        join trip t on lt.trip_id = t.trip_id
+        join route r on lt.route_id = r.route_id
+        join station os on r.origin_id = os.station_id
+        join station ds on r.destination_id = ds.station_id
+        join local_route lr on r.route_id = lr.route_id
+        where t.departure_time >= %s
+        order by t.departure_time
+        limit 4
+    """
+    cursor.execute(trip_query, (departure_time, ))
+    trips = cursor.fetchall()
+
+    if request.method == 'POST':
+        trip_id = request.form.get('trip_id')
+
+        ticket_insertion_query = """
+            insert into ticket(user_id, travel_date, total_cost)
+            values(%s, %s, %s)
+        """
+        # total cost can be 2 atm because it is the base ticketitem
+        cursor.execute(ticket_insertion_query, (session.get('user_id'), travel_date, 2))
+
+        ticket_id = cursor.lastrowid
+        ticketitem_insertion_query = """
+            insert into ticketitem(ticket_id, trip_id)
+            values(%s, %s)
+        """
+        cursor.execute(ticketitem_insertion_query, (ticket_id, trip_id))
+
+        update_userbal_query = """
+            update passenger
+            set lion_coins = lion_coins - 2
+            where user_id = %s
+        """
+        cursor.execute(update_userbal_query, (session.get('user_id'), ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return redirect(url_for('passenger'))
+
+    return render_template('passengerpages/buy_ticket2.html', trips=trips)
+
+@app.route('/passenger/ticket/<int:ticket_id>', methods=['GET', 'POST'])
+def ticket_detail(ticket_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    trip_query = """
+    """
+    return render_template('passengerpages/ticket_detail.html')
+
+@app.route('/passenger/ticket/addtrip/<int:ticket_id>', methods=['GET', 'POST'])
+def addtrip():
+    pass
+"""
 MISC. SETUP
 """
 
