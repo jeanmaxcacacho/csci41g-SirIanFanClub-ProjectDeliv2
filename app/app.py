@@ -495,7 +495,7 @@ def ticket_detail(ticket_id):
     cursor = conn.cursor()
 
     base_ticket_query = """
-        select u.user_id, u.lname, u.fname, u.middle_initial, u.sex, tick.travel_date, tick.total_cost
+        select tick.ticket_id, u.user_id, u.lname, u.fname, u.middle_initial, u.sex, tick.travel_date, tick.total_cost
         from user u
         join ticket tick on u.user_id = tick.user_id
         where tick.ticket_id = %s
