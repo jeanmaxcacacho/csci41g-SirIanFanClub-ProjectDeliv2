@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1>Welcome to Tirian Trains Express</h1>
+<h2>The inter-town railway system is still under construction, please stay tuned for when it finishes!</h2>
+<a href="{{ url_for('logout') }}">Log Out</a>
+<hr>
+
+<h1>User Information</h1>
+<p><strong>Passenger Name: </strong>{{ user[0] }}</p>
+{# <p><strong>Lion Coins: </strong>{{ user[1] }}</p> #}
+<p><strong>Joined At: </strong>{{ user[2] }}</p>
+<hr>
+
+<h1>Train Routes</h1>
+    {% if local_routes %}
+        <h4>Train Routes Available for Transit</h4>
+        <table border="2">
+            <tr>
+                <th>Route ID</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Duration</th>
+                <th>Lion Coins</th>
+            </tr>
+            {% for local_route in local_routes %}
+                <tr align="center">
+                    <td>{{ local_route[0] }}</td>
+                    <td>{{ local_route[1] }}</td>
+                    <td>{{ local_route[2] }}</td>
+                    <td>{{ local_route[3] }}</td>
+                    <td>{{ local_route[4] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no local routes recorded yet in the database.</h4>
+    {% endif %}
+<hr>
+
+<h1>Purchase Log</h1>
+<a href="{{ url_for('buyticket1') }}">Buy Tickets</a>
+
+    {% if tickets %}
+        <h4>Purchased Tickets</h4>
+        <table border="2">
+            <tr>
+                <th>Ticket ID</th>
+                <th>Travel Date</th>
+                <th>Lion Coins</th>
+                <th>Purchase Date</th>
+                <th>Ticket Detail</th>
+            </tr>
+            {% for ticket in tickets %}
+                <tr align="center">
+                    <td>{{ ticket[0] }}</td>
+                    <td>{{ ticket[1] }}</td>
+                    <td>{{ ticket[2] }}</td>
+                    <td>{{ ticket[3] }}</td>
+                    <td><a href="{{ url_for('ticket_detail', ticket_id=ticket[0]) }}">View Detail</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>You have not yet purchased any tickets.</h4>
+    {% endif %}
+
+
+{% endblock body %}

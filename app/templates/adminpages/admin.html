@@ -131,7 +131,7 @@
     
     <hr>
     <h3>All Local Trips</h3>
-    <a href="{{ url_for('add_trip', trip_type='local') }}">Add Local Trip</a>
+    {# <a href="{{ url_for('add_trip', trip_type='local') }}">Add Local Trip</a> #}
     {% if local_trips %}
         <h4>Local Trips in the Database</h4>
         <table border="2">
@@ -162,7 +162,7 @@
 
     <hr>
     <h3>All Inter-town Trips</h3>
-    <a href="{{ url_for('add_trip', trip_type='intertown') }}">Add Inter-town Trip</a>
+    {# <a href="{{ url_for('add_trip', trip_type='intertown') }}">Add Inter-town Trip</a> #}
     {% if intertown_trips %}
         <h4>Inter-town Trips in the Database</h4>
         <table border="2">
