@@ -494,13 +494,98 @@ def ticket_detail(ticket_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    trip_query = """
+    base_ticket_query = """
+        select u.user_id, u.lname, u.fname, u.middle_initial, u.sex, tick.travel_date, tick.total_cost
+        from user u
+        join ticket tick on u.user_id = tick.user_id
+        where tick.ticket_id = %s
     """
-    return render_template('passengerpages/ticket_detail.html')
+    cursor.execute(base_ticket_query, (ticket_id, ))
+    ticket = cursor.fetchone()
 
-@app.route('/passenger/ticket/addtrip/<int:ticket_id>', methods=['GET', 'POST'])
-def addtrip():
-    pass
+    ticketitem_query = """
+        select concat(tr.train_series, '-', lpad(tr.train_id, 3, '0')),
+               os.station_name, ds.station_name,
+               t.departure_time, t.arrival_time,
+               lr.local_duration, lr.local_price
+        from ticketitem ti
+        join trip t on ti.trip_id = t.trip_id
+        join local_trip lt on t.trip_id = lt.trip_id
+        join route r on lt.route_id = r.route_id
+        join local_route lr on r.route_id = lr.route_id
+        join train tr on t.train_id = tr.train_id
+        join station os on r.origin_id = os.station_id
+        join station ds on r.destination_id = ds.station_id
+        where ticket_id = %s
+        order by t.departure_time
+    """
+    cursor.execute(ticketitem_query, (ticket_id, ))
+    ticketitems = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('passengerpages/ticket_detail.html', ticket=ticket, ticketitems=ticketitems)
+
+# generating new ticketitems for tickets that already exist
+@app.route('/passenger/ticket/addtrip1/<int:ticket_id>', methods=['GET', 'POST'])
+def addtrip1(ticket_id):
+    departure_time = request.args.get('departure_time')
+    session['departure_time'] = departure_time
+    if session['departure_time']:
+        return redirect(url_for('addtrip2', ticket_id=ticket_id))
+    return render_template('passengerpages/add_trip1.html', ticket_id=ticket_id)
+
+@app.route('/passenger/ticket/addtrip2/<int:ticket_id>', methods=['GET', 'POST'])
+def addtrip2(ticket_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    departure_time = session.get('departure_time')
+
+    trip_query = """
+        select t.trip_id, r.route_id, os.station_name, ds.station_name, lr.local_price
+        from local_trip lt
+        join trip t on lt.trip_id = t.trip_id
+        join route r on lt.route_id = r.route_id
+        join station os on r.origin_id = os.station_id
+        join station ds on r.destination_id = ds.station_id
+        join local_route lr on r.route_id = lr.route_id
+        where t.departure_time >= %s
+        order by t.departure_time
+        limit 4
+    """
+    cursor.execute(trip_query, (departure_time, ))
+    trips = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    if request.method == 'POST':
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        trip_id = request.form.get('trip_id')
+        ticketitem_insertion_query = """
+            insert into ticketitem(ticket_id, trip_id)
+            values (%s, %s)
+        """
+        cursor.execute(ticketitem_insertion_query, (ticket_id, trip_id))
+
+        # update total cost attribute of base ticket
+        total_cost_update_query = """
+            update ticket
+            set total_cost = (
+                select count(*)
+                from ticketitem
+                where ticketitem.ticket_id = ticket.ticket_id
+            ) * 2
+            where ticket_id = %s
+        """
+        cursor.execute(total_cost_update_query, (ticket_id, ))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        return redirect(url_for('ticket_detail', ticket_id=ticket_id))
+    return render_template('passengerpages/add_trip2.html', trips=trips, ticket_id=ticket_id)
+
 """
 MISC. SETUP
 """

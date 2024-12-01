@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 
 {% block body %}
-<h1>Buy Tickets</h1>
-<form action="{{ url_for('buyticket1') }}" method="get">
-    <label for="travel_date">Travel Date: </label>
-    <input type="date" name="travel_date" required>
-    <br><br>
+<h1>Add Additional Trip</h1>
 
+<form action="{{ url_for('addtrip1', ticket_id=ticket_id) }}" method="get">
     <label for="departure_time">Departure Time: </label>
     <input type="time" name="departure_time">
     <br><br>
 
     <button type="submit">Proceed to Available Trips</button>
 </form>
+
 {% endblock body %}
